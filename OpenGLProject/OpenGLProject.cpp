@@ -235,7 +235,7 @@ void SelectObjects(GLint x, GLint y) {
 	hits = glRenderMode(GL_RENDER);
 	if (hits > 0)
 	{
-		ProcessSelect(selectBuff);
+		//ProcessSelect(selectBuff);
 		SetTextMessage(selectBuff);
 	}
 
