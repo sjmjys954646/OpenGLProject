@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <GL/glut.h>
 #include <GL/glu.h>
-
+#include "glaux.h"
 //for drawing fonts
 #include "bitmap_fonts.h"
 
@@ -108,7 +108,7 @@ void DrawGLScene() {
 	glPushName(100);
 	glPushMatrix();
 	glColor3f(1.0f, 0.0f, 0.0f);
-	glutWireTeapot(0.3);
+	glutSolidCube(0.3);
 	glPopMatrix();
 	glPopName();
 
@@ -116,7 +116,7 @@ void DrawGLScene() {
 	glPushMatrix();
 	glColor3f(0.0f, 1.0f, 0.0f);
 	glTranslatef(-1.0f, -1.0f, 0.0f);
-	glutSolidSphere(0.3, 30, 30);
+	glutSolidCube(0.3);
 	glPopMatrix();
 	glPopName();
 
@@ -124,7 +124,7 @@ void DrawGLScene() {
 	glPushMatrix();
 	glColor3f(0.0f, 0.0f, 1.0f);
 	glTranslatef(1.0f, 1.0f, 0.0f);
-	glutSolidSphere(0.3, 30, 30);
+	glutSolidCube(0.3);
 	glPopMatrix();
 	glPopName();
 
@@ -132,7 +132,7 @@ void DrawGLScene() {
 	glPushMatrix();
 	glColor3f(1.0f, 1.0f, 0.0f);
 	glTranslatef(-1.0f, 1.0f, 0.0f);
-	glutSolidSphere(0.3, 30, 30);
+	glutSolidCube(0.3);
 	glPopMatrix();
 	glPopName();
 
@@ -140,7 +140,7 @@ void DrawGLScene() {
 	glPushMatrix();
 	glColor3f(0.0f, 1.0f, 1.0f);
 	glTranslatef(1.0f, -1.0f, 0.0f);
-	glutSolidSphere(0.3, 30, 30);
+	glutSolidCube(0.3);
 	glPopMatrix();
 	glPopName();
 
@@ -202,7 +202,7 @@ void SetTextMessage(GLuint index[64])
 {
 	switch (index[3]) {
 
-	case 100: sprintf_s(message, "Red Wire Teapot"); break;
+	case 100: sprintf_s(message, "center"); break;
 	case 101: sprintf_s(message, "Green Solid Sphere"); break;
 	case 102: sprintf_s(message, "Blue Solid Sphere"); break;
 	case 103: sprintf_s(message, "Yellow Solid Sphere"); break;
@@ -210,7 +210,7 @@ void SetTextMessage(GLuint index[64])
 	case 105: sprintf_s(message, "Line"); break;
 	case 106: sprintf_s(message, "UI"); break;
 
-	default: sprintf_s(message, "None"); break;
+	//default: sprintf_s(message, "None"); break;
 	}
 }
 
@@ -304,6 +304,27 @@ void MyReshape(int w, int h) {
 	glLoadIdentity();
 	gluPerspective(45, (GLfloat)w / (GLfloat)h, 0.1, 100.0);
 }
+void MyMainMenu(int entryID) {
+	if (entryID == 1)
+		exit(0);
+	glutPostRedisplay(); // 프로그램 종료
+}
+
+void MySubMenu_shape(int entryID) {
+	if (entryID == 1)
+		sprintf_s(message, "Blue Solid Sphere");
+	else if (entryID == 2)
+		sprintf_s(message, "Blue Solid Sphere");
+	glutPostRedisplay();
+}
+
+void MySubMenu_size(int entryID) {
+	if (entryID == 1)
+		sprintf_s(message, "Blue Solid Sphere");
+	else if (entryID == 2)
+		sprintf_s(message, "Blue Solid Sphere");
+	glutPostRedisplay();
+}
 
 int main(int argc, char** argv) {
 	glutInit(&argc, argv);
@@ -311,12 +332,27 @@ int main(int argc, char** argv) {
 	glutInitWindowSize(640, 480);
 	glutInitWindowPosition(100, 100);
 	glutCreateWindow("test");
+	GLint MySubMenuID_shape = glutCreateMenu(MySubMenu_shape);
+	glutAddMenuEntry("Draw Sphere", 1);
+	glutAddMenuEntry("Draw Torus", 2);
+
+	//Change Size 서브 메뉴의 콜백 함수 등록
+	GLint MySubMenuID_size = glutCreateMenu(MySubMenu_size);
+	glutAddMenuEntry("Small One", 1);
+	glutAddMenuEntry("Big One", 2);
+
+	GLint MyMainMenuID = glutCreateMenu(MyMainMenu);
+	glutAddSubMenu("Change Shape", MySubMenuID_shape);
+	glutAddSubMenu("Change Size", MySubMenuID_size);
+	glutAddMenuEntry("Exit", 1);
+
+	glutAttachMenu(GLUT_RIGHT_BUTTON);
 	InitGL();
 	glutDisplayFunc(DrawGLScene);
 	glutReshapeFunc(MyReshape);
 	glutMouseFunc(MyMouse);
 	glutMotionFunc(MyMotion);
-
+	
 	glutMainLoop();
 	return 0;
 }
