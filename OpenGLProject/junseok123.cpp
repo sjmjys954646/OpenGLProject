@@ -210,7 +210,7 @@ void SetTextMessage(GLuint index[64])
 	case 105: sprintf_s(message, "Line"); break;
 	case 106: sprintf_s(message, "UI"); break;
 
-	//default: sprintf_s(message, "None"); break;
+		//default: sprintf_s(message, "None"); break;
 	}
 }
 
@@ -309,20 +309,29 @@ void MyMainMenu(int entryID) {
 		exit(0);
 	glutPostRedisplay(); // 프로그램 종료
 }
+void MySpecial(int key, int x, int y) {
+	if (key == GLUT_KEY_UP) {
+		g_fDistance -= 0.1f;
+	}
+	else if (key == GLUT_KEY_DOWN) {
+		g_fDistance += 0.1f;
+	}
 
+	glutPostRedisplay();
+}
 void MySubMenu_shape(int entryID) {
 	if (entryID == 1)
-		sprintf_s(message, "Blue Solid Sphere");
+		sprintf_s(message, "hoho");
 	else if (entryID == 2)
-		sprintf_s(message, "Blue Solid Sphere");
+		sprintf_s(message, "haha");
 	glutPostRedisplay();
 }
 
 void MySubMenu_size(int entryID) {
 	if (entryID == 1)
-		sprintf_s(message, "Blue Solid Sphere");
+		sprintf_s(message, "heoheo");
 	else if (entryID == 2)
-		sprintf_s(message, "Blue Solid Sphere");
+		sprintf_s(message, "hihi");
 	glutPostRedisplay();
 }
 
@@ -333,13 +342,13 @@ int main(int argc, char** argv) {
 	glutInitWindowPosition(100, 100);
 	glutCreateWindow("test");
 	GLint MySubMenuID_shape = glutCreateMenu(MySubMenu_shape);
-	glutAddMenuEntry("Draw Sphere", 1);
-	glutAddMenuEntry("Draw Torus", 2);
+	glutAddMenuEntry("hoho", 1);
+	glutAddMenuEntry("haha", 2);
 
 	//Change Size 서브 메뉴의 콜백 함수 등록
 	GLint MySubMenuID_size = glutCreateMenu(MySubMenu_size);
-	glutAddMenuEntry("Small One", 1);
-	glutAddMenuEntry("Big One", 2);
+	glutAddMenuEntry("heoheo", 1);
+	glutAddMenuEntry("hihi", 2);
 
 	GLint MyMainMenuID = glutCreateMenu(MyMainMenu);
 	glutAddSubMenu("Change Shape", MySubMenuID_shape);
@@ -352,7 +361,7 @@ int main(int argc, char** argv) {
 	glutReshapeFunc(MyReshape);
 	glutMouseFunc(MyMouse);
 	glutMotionFunc(MyMotion);
-	
+	glutSpecialFunc(MySpecial);
 	glutMainLoop();
 	return 0;
 }

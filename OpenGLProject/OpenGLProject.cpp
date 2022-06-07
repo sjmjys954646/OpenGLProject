@@ -12,299 +12,259 @@
 #include <glm/gtc/matrix_transform.hpp> 
 #include <glm/gtc/type_ptr.hpp>
 
-static POINT	ptLastMousePosit;
-static POINT	ptCurrentMousePosit;
-static bool		bMousing;
-
-static char message[255];
-
-int    g_nWindowWidth;
-int    g_nWindowHeight;
-
-float g_fDistance = -5.0f;
-float g_fSpinX = 0.0f;
-float g_fSpinY = 0.0f;
-
-
-glm::vec4 ConvertVector(glm::vec4 p)
+int Loadfile()
 {
-	glm::mat4 model(1.f);
-	model = glm::translate(model, glm::vec3(0.0f, 0.0f, g_fDistance));
-	model = glm::rotate(model, glm::radians(-g_fSpinY), glm::vec3(1.0f, 0.0f, 0.0f));
-	model = glm::rotate(model, glm::radians(-g_fSpinX), glm::vec3(0.0f, 1.0f, 0.0f));
-
-	glm::mat4 view = glm::mat4(1.f);
-
-	glm::mat4 projection;
-	projection = glm::perspective(glm::radians(45.f),
-		(float)g_nWindowWidth / (float)g_nWindowHeight, 0.1f, 100.0f);
-	glm::mat4 M = projection * view * model;
-	glm::mat4 invM = inverse(M);
-	glm::vec4 convP;
-
-	convP = invM * p;
-	convP /= convP[3];
-
-
-	return convP;
-}
-float u = 50;
-float v = 50;
-void DrawUI()
-{
-	glDisable(GL_LIGHTING);
-
-	//Draw box UI
-	glPushName(106);
-	glColor4f(0, 0, 0.5, 0.5);
-	glBegin(GL_QUADS);
-	glm::vec4 convP = ConvertVector(glm::vec4(-1, -1, 0, 1));
-	glVertex4f(convP[0], convP[1], convP[2], 1.f);
-
-	convP = ConvertVector(glm::vec4(1, -1, 0, 1));
-	glVertex4f(convP[0], convP[1], convP[2], 1.f);
-
-	convP = ConvertVector(glm::vec4(1, -0.5, 0, 1));
-	glVertex4f(convP[0], convP[1], convP[2], 1.f);
-
-	convP = ConvertVector(glm::vec4(-1, -0.5, 0, 1));
-	glVertex4f(convP[0], convP[1], convP[2], 1.f);
-
-	glEnd();
-	glPopName();
-
-	//Draw font
-	beginRenderText(g_nWindowWidth, g_nWindowHeight);
+	FILE* fp;
+	int input = 0;
+	input = rand() % 4;
+	switch (input)
 	{
-		glColor3f(1.0f, 1.0f, 1.0f);
-		u = (1.f - 0.75f) / 2.f * g_nWindowWidth;
-		v = (1.f - (-0.75f)) / 2.f * g_nWindowHeight;
-		renderText(u, v, BITMAP_FONT_TYPE_HELVETICA_18, message);
+	case 0:
+		fp = fopen("C:\Users\이윤수\source\repos\OpenGLProject\OpenGLProject\Data\Map\bring_1.txt", "rt");
+		break;
+	case 1:
+		fp = fopen("C:\Users\이윤수\source\repos\OpenGLProject\OpenGLProject\Data\Map\bring_2.txt", "rt");
+		break;
+	case 2:
+		fp = fopen("C:\Users\이윤수\source\repos\OpenGLProject\OpenGLProject\Data\Map\bring_3.txt", "rt");
+		break;
+	case 3:
+		fp = fopen("C:\Users\이윤수\source\repos\OpenGLProject\OpenGLProject\Data\Map\bring_4.txt", "rt");
+		break;
 	}
-	endRenderText();
 
-	glEnable(GL_LIGHTING);
-}
-
-void DrawGLScene() {
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
-
-	glTranslatef(0.0f, 0.0f, g_fDistance);
-	glRotatef(-g_fSpinY, 1.0f, 0.0f, 0.0f);
-	glRotatef(-g_fSpinX, 0.0f, 1.0f, 0.0f);
-
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-	float mat[16];
-	glm::f32 values[16];
-
-
-	glInitNames();
-	glEnable(GL_LIGHTING);
-
-	glPushName(100);
-	glPushMatrix();
-	glColor3f(1.0f, 0.0f, 0.0f);
-	glutWireTeapot(0.3);
-	glPopMatrix();
-	glPopName();
-
-	glPushName(101);
-	glPushMatrix();
-	glColor3f(0.0f, 1.0f, 0.0f);
-	glTranslatef(-1.0f, -1.0f, 0.0f);
-	glutSolidSphere(0.3, 30, 30);
-	glPopMatrix();
-	glPopName();
-
-	glPushName(102);
-	glPushMatrix();
-	glColor3f(0.0f, 0.0f, 1.0f);
-	glTranslatef(1.0f, 1.0f, 0.0f);
-	glutSolidSphere(0.3, 30, 30);
-	glPopMatrix();
-	glPopName();
-
-	glPushName(103);
-	glPushMatrix();
-	glColor3f(1.0f, 1.0f, 0.0f);
-	glTranslatef(-1.0f, 1.0f, 0.0f);
-	glutSolidSphere(0.3, 30, 30);
-	glPopMatrix();
-	glPopName();
-
-	glPushName(104);
-	glPushMatrix();
-	glColor3f(0.0f, 1.0f, 1.0f);
-	glTranslatef(1.0f, -1.0f, 0.0f);
-	glutSolidSphere(0.3, 30, 30);
-	glPopMatrix();
-	glPopName();
-
-	glDisable(GL_LIGHTING);
-
-	glPushName(105);
-	glColor3f(0.7f, 0.7f, 1.0f);
-	glBegin(GL_LINES);
-	glVertex2f(-1.0f, -1.0f);
-	glVertex2f(1.0f, -1.0f);
-
-	glVertex2f(1.0f, -1.0f);
-	glVertex2f(1.0f, 1.0f);
-
-	glVertex2f(1.0f, 1.0f);
-	glVertex2f(-1.0f, 1.0f);
-
-	glVertex2f(-1.0f, 1.0f);
-	glVertex2f(-1.0f, -1.0f);
-
-	glVertex2f(0.0f, 1.5f);
-	glVertex2f(0.0f, -1.5f);
-
-	glVertex2f(1.5f, 0.0f);
-	glVertex2f(-1.5f, 0.0f);
-
-	glVertex2f(1.5f, 1.5f);
-	glVertex2f(-1.5f, -1.5f);
-	glEnd();
-	glPopName();
-
-	glColor3f(1.0f, 1.0f, 1.0f);
-	glBegin(GL_LINES);
-	glVertex2f(-1.5f, 1.5f);
-	glVertex2f(1.5f, -1.5f);
-	glEnd();
-
-
-	//Draw UI
-	DrawUI();
-
-	glutSwapBuffers();
-}
-
-void ProcessSelect(GLuint index[64]) {
-	switch (index[3]) {
-	case 100: MessageBox(NULL, "Red Wire Teapot", "Selection", MB_OK); break;
-	case 101: MessageBox(NULL, "Green Solid Sphere", "Selection", MB_OK); break;
-	case 102: MessageBox(NULL, "Blue Solid Sphere", "Selection", MB_OK); break;
-	case 103: MessageBox(NULL, "Yellow Solid Sphere", "Selection", MB_OK); break;
-	case 104: MessageBox(NULL, "Cyan Solid Sphere", "Selection", MB_OK); break;
-	case 105: MessageBox(NULL, "Line", "Selection", MB_OK); break;
-
-	default: MessageBox(NULL, "None?", "Selection", MB_OK); break;
-	}
-}
-
-void SetTextMessage(GLuint index[64])
-{
-	switch (index[3]) {
-
-	case 100: sprintf_s(message, "Red Wire Teapot"); break;
-	case 101: sprintf_s(message, "Green Solid Sphere"); break;
-	case 102: sprintf_s(message, "Blue Solid Sphere"); break;
-	case 103: sprintf_s(message, "Yellow Solid Sphere"); break;
-	case 104: sprintf_s(message, "Cyan Solid Sphere"); break;
-	case 105: sprintf_s(message, "Line"); break;
-	case 106: sprintf_s(message, "UI"); break;
-
-	default: sprintf_s(message, "None"); break;
-	}
-}
-
-void SelectObjects(GLint x, GLint y) {
-	GLuint selectBuff[64];
-	GLint hits, viewport[4];
-
-	glSelectBuffer(64, selectBuff);
-	glGetIntegerv(GL_VIEWPORT, viewport);
-	glMatrixMode(GL_PROJECTION);
-	glPushMatrix();
-	glRenderMode(GL_SELECT);
-	glLoadIdentity();
-	gluPickMatrix(x, viewport[3] - y, 2, 2, viewport);
-
-	gluPerspective(45.0f, (GLfloat)g_nWindowWidth / (GLfloat)g_nWindowHeight, 0.1f, 100.0f);
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
-
-	DrawGLScene();
-
-	hits = glRenderMode(GL_RENDER);
-	if (hits > 0)
+	if (fp == NULL)
 	{
-		//ProcessSelect(selectBuff);
-		SetTextMessage(selectBuff);
+		printf("\n실패\n");
+		return 1;
 	}
+	printf("\n완료\n");
 
-	glMatrixMode(GL_PROJECTION);
-	glPopMatrix();
-	glMatrixMode(GL_MODELVIEW);
-}
+	int cha;
 
-void MyMouse(int button, int state, int x, int y) {
-	switch (button) {
-	case GLUT_LEFT_BUTTON:
-		if (state == GLUT_DOWN) {
-			ptLastMousePosit.x = ptCurrentMousePosit.x = x;
-			ptLastMousePosit.y = ptCurrentMousePosit.y = y;
-			SelectObjects(ptCurrentMousePosit.x, ptCurrentMousePosit.y);
-			bMousing = true;
+	while (feof(fp) == 0)
+	{
+		for (int i = 0; i < 30; i++)
+		{
+			for (int j = 0; j < 30; j++)
+			{
+				fscanf(fp, "%d", &cha);
+				makeboard[i][j] = cha;
+			}
 		}
-		else
-			bMousing = false;
-		break;
-	case GLUT_MIDDLE_BUTTON:
-	case GLUT_RIGHT_BUTTON:
-		break;
-	default:
-		break;
 	}
-
-	glutPostRedisplay();
+	fclose(fp);
+	return 1;
 }
 
-void MyMotion(int x, int y) {
-	ptCurrentMousePosit.x = x;
-	ptCurrentMousePosit.y = y;
-
-	if (bMousing)
+void board_maker()
+{
+	for (int i = 0; i < 30; i++)
 	{
-		g_fSpinX -= (ptCurrentMousePosit.x - ptLastMousePosit.x);
-		g_fSpinY -= (ptCurrentMousePosit.y - ptLastMousePosit.y);
+		for (int j = 0; j < 30; j++)
+		{
+			if (makeboard[i][j] == 1)
+			{
+				glPushMatrix();
+				{
+					glTranslatef(i * 1.1 - 15, 0, j * 1.1 - 15);
+					draw_block();
+				}
+				glPopMatrix(); // 블럭 표시
+				glColor3f(1, 0, 0);
+				glLineWidth(1);
+				glBegin(GL_LINE_LOOP);
+				{
+					glVertex3f(static_block[i][j].max_x, 1, static_block[i][j].max_z);
+					glVertex3f(static_block[i][j].min_x, 1, static_block[i][j].max_z);
+					glVertex3f(static_block[i][j].min_x, 1, static_block[i][j].min_z);
+					glVertex3f(static_block[i][j].max_x, 1, static_block[i][j].min_z);
+				}
+				glEnd();
+				glLineWidth(1); // 블럭 위치
+			}
+			else if (makeboard[i][j] == 2)
+			{
+				glPushMatrix();
+				{
+					glTranslatef(i * 1.1 - 15, 0, j * 1.1 - 15);
+					item();
+				}
+				glPopMatrix(); // 아이템 표시
+				glColor3f(0, 1, 0);
+				glLineWidth(1);
+				glBegin(GL_LINE_LOOP);
+				{
+					glVertex3f(static_block[i][j].max_x, 1, static_block[i][j].max_z);
+					glVertex3f(static_block[i][j].min_x, 1, static_block[i][j].max_z);
+					glVertex3f(static_block[i][j].min_x, 1, static_block[i][j].min_z);
+					glVertex3f(static_block[i][j].max_x, 1, static_block[i][j].min_z);
+				}
+				glEnd();
+				glLineWidth(1); // 아이템 위치
+			}
+			else if (makeboard[i][j] == 3)
+			{
+				glTranslatef(i * 1.1  15, 1.5, j * 1.1 - 15);
+				glColor3f(0.0, 0.0, 0.0);
+
+				glBindTexture(GL_TEXTURE_2D, textures[1]);
+				glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_SPHERE_MAP);
+				glBegin(GL_QUADS);
+				{
+					glTexCoord2f(1, 1);
+					glVertex3f(-1.0f, 2.0f, 1.0f);
+					glTexCoord2f(0, 1);
+					glVertex3f(-1.0f, -2.0f, 1.0f);
+					glTexCoord2f(0, 0);
+					glVertex3f(1.0f, -2.0f, 1.0f);
+					glTexCoord2f(1, 0);
+					glVertex3f(1.0f, 2.0f, 1.0f);
+				}
+				glEnd();
+				//오른쪽
+				glBindTexture(GL_TEXTURE_2D, textures[1]);
+				glBegin(GL_QUADS);
+				{
+					glTexCoord2f(1, 1);
+					glVertex3f(1.0f, 2.0f, 1.0f);
+					glTexCoord2f(0, 1);
+					glVertex3f(1.0f, -2.0f, 1.0f);
+					glTexCoord2f(0, 0);
+					glVertex3f(1.0f, -2.0f, -1.0f);
+					glTexCoord2f(1, 0);
+					glVertex3f(1.0f, 2.0f, -1.0f);
+				}
+				glEnd();
+				//뒷쪽
+				glBindTexture(GL_TEXTURE_2D, textures[1]);
+				glBegin(GL_QUADS);
+				{
+					glTexCoord2f(1, 1);
+					glVertex3f(1.0f, 2.0f, -1.0f);
+					glTexCoord2f(0, 1);
+					glVertex3f(1.0f, -2.0f, -1.0f);
+					glTexCoord2f(0, 0);
+					glVertex3f(-1.0f, -2.0f, -1.0f);
+					glTexCoord2f(1, 0);
+					glVertex3f(-1.0f, 2.0f, -1.0f);
+				}
+				glEnd();
+				////왼쪽
+				glBindTexture(GL_TEXTURE_2D, textures[1]);
+				glBegin(GL_QUADS);
+				{
+					glTexCoord2f(1, 1);
+					glVertex3f(-1.0f, 2.0f, -1.0f);
+					glTexCoord2f(0, 1);
+					glVertex3f(-1.0f, -2.0f, -1.0f);
+					glTexCoord2f(0, 0);
+					glVertex3f(-1.0f, -2.0f, 1.0f);
+					glTexCoord2f(1, 0);
+					glVertex3f(-1.0f, 2.0f, 1.0f);
+				}
+				glEnd();
+				////아랫쪽
+				glBindTexture(GL_TEXTURE_2D, textures[1]);
+				glBegin(GL_QUADS);
+				{
+					glTexCoord2f(1, 1);
+					glVertex3f(-1.0f, -2.0f, 1.0f);
+					glTexCoord2f(0, 1);
+					glVertex3f(-1.0f, -2.0f, -1.0f);
+					glTexCoord2f(0, 0);
+					glVertex3f(1.0f, -2.0f, -1.0f);
+					glTexCoord2f(1, 0);
+					glVertex3f(1.0f, -2.0f, 1.0f);
+				}
+				glEnd();
+				////윗쪽
+				glBindTexture(GL_TEXTURE_2D, textures[1]);
+				glBegin(GL_QUADS);
+				{
+					glTexCoord2f(1, 1);
+					glVertex3f(-1.0f, 2.0f, 1.0f);
+					glTexCoord2f(0, 1);
+					glVertex3f(-1.0f, 2.0f, -1.0f);
+					glTexCoord2f(0, 0);
+					glVertex3f(1.0f, 2.0f, -1.0f);
+					glTexCoord2f(1, 0);
+					glVertex3f(1.0f, 2.0f, 1.0f);
+				}
+				glEnd();
+			}
+		}
 	}
-
-	ptLastMousePosit.x = ptCurrentMousePosit.x;
-	ptLastMousePosit.y = ptCurrentMousePosit.y;
-
-	glutPostRedisplay();
 }
 
-int InitGL() {
-	glShadeModel(GL_SMOOTH);
-	glClearColor(0.0f, 0.0f, 0.0f, 0.5f);
-	glClearDepth(1.0f);
-	glEnable(GL_DEPTH_TEST);
-	glEnable(GL_COLOR_MATERIAL);
-	glEnable(GL_LIGHT0);
-	glDepthFunc(GL_LEQUAL);
-	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
+void draw_block()
+{
+	if (map == 0)
+	{
+		glColor3f(0.3, 0.5, 0.5);
+	}
+	if (map == 1)
+	{
+		glColor3f(0.7, 0.1, 0.7);
+	}
+	if (map == 2)
+	{
+		glColor3f(0.0, 0.8, 0.3);
+	}
+	if (map == 3)
+	{
+		glColor3f(0.7, 0.2, 0.3);
+	}
+	glPushMatrix();
+	{
+		glNormal3f(0, 1, 0);
+		glTranslatef(0, 1.1, 0);
+		glutSolidCube(1);
 
-	return TRUE;
+		glTranslatef(0, 1.1, 0);
+		glutSolidCube(1);
+
+		glTranslatef(0, 1.1, 0);
+		glutSolidCube(1);
+
+		glTranslatef(0, 1.1, 0);
+		glutSolidCube(1);
+
+		glTranslatef(0, 1.1, 0);
+		glutSolidCube(1);
+	}
+	glPopMatrix();
 }
 
-void MyReshape(int w, int h) {
-	g_nWindowWidth = w;
-	g_nWindowHeight = h;
+void item()
+{
+	glPushMatrix();
+	{
+		glEnable(GL_BLEND);
+		glPushMatrix();
+		{
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+			//glColor3f(0.7, 0.2, 0.2);
+			glTranslatef(0, 2, 0);
+			glColor4f(0, 0.8, 0, 0.8);
+			glRotatef(obj_rot, 0, 1, 0);
+			glutSolidCube(0.3);
+		}
+		glPopMatrix();
+		glPushMatrix();
+		{
+			glColor4f(0.7, 0, 0, 0.5);
+			glTranslatef(0, 2, 0);
+			glRotatef(obj_rot, 0, 1, 0);
+			glRotatef(90, -1, 0, -1);
+			glutSolidCube(0.6);
+		}
+		glPopMatrix();
 
-	glViewport(0, 0, (GLsizei)w, (GLsizei)h);
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	gluPerspective(45, (GLfloat)w / (GLfloat)h, 0.1, 100.0);
+		glDisable(GL_BLEND);
+	}
+	glPopMatrix();
 }
-
 int main(int argc, char** argv) {
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
