@@ -1,282 +1,466 @@
 ﻿#define _CRT_SECURE_NO_WARNINGS
-#include <Windows.h>
-#include <stdio.h>
-#include <GL/glut.h>
-#include <GL/glu.h>
-
-//for drawing fonts
-#include "bitmap_fonts.h"
-
-#include <vector>
-#include <glm/glm.hpp> 
-#include <glm/gtc/matrix_transform.hpp> 
+#include <gl/glut.h>
+#include <math.h>
+#include <gl/gl.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <gl/freeglut.h>
+#include <stdlib.h>
+#include "glaux.h"
+#include <GL/GLU.h>
+#include <GL/glut.h>
+#include <string>
 
-int Loadfile()
-{
-	FILE* fp;
-	int input = 0;
-	input = rand() % 4;
-	switch (input)
-	{
-	case 0:
-		fp = fopen("C:\Users\이윤수\source\repos\OpenGLProject\OpenGLProject\Data\Map\bring_1.txt", "rt");
-		break;
-	case 1:
-		fp = fopen("C:\Users\이윤수\source\repos\OpenGLProject\OpenGLProject\Data\Map\bring_2.txt", "rt");
-		break;
-	case 2:
-		fp = fopen("C:\Users\이윤수\source\repos\OpenGLProject\OpenGLProject\Data\Map\bring_3.txt", "rt");
-		break;
-	case 3:
-		fp = fopen("C:\Users\이윤수\source\repos\OpenGLProject\OpenGLProject\Data\Map\bring_4.txt", "rt");
-		break;
+using namespace std;
+
+static float angle = 0.0, ratio;
+static float x = 0.0f, y = 1.75f - 50.0f, z = 0.0f;
+static float lx = 0.0f, ly = 0.0f, lz = 1.0f;
+
+GLfloat dx = 0.2;
+GLfloat x1;
+
+GLuint	texture[30];
+GLuint g_textureID = -1;
+
+AUX_RGBImageRec* LoadBMP(const char* Filename) {
+	FILE* File = NULL;
+
+	if (!Filename) {
+		return NULL;
 	}
 
-	if (fp == NULL)
-	{
-		printf("\n실패\n");
-		return 1;
-	}
-	printf("\n완료\n");
+	File = fopen(Filename, "r");
 
-	int cha;
-
-	while (feof(fp) == 0)
-	{
-		for (int i = 0; i < 30; i++)
-		{
-			for (int j = 0; j < 30; j++)
-			{
-				fscanf(fp, "%d", &cha);
-				makeboard[i][j] = cha;
-			}
-		}
+	if (File) {
+		fclose(File);
+		return auxDIBImageLoad(Filename);
 	}
-	fclose(fp);
-	return 1;
+
+	return NULL;
 }
 
-void board_maker()
+void changeSize(int w, int h)
 {
-	for (int i = 0; i < 30; i++)
-	{
-		for (int j = 0; j < 30; j++)
-		{
-			if (makeboard[i][j] == 1)
-			{
-				glPushMatrix();
-				{
-					glTranslatef(i * 1.1 - 15, 0, j * 1.1 - 15);
-					draw_block();
-				}
-				glPopMatrix(); // 블럭 표시
-				glColor3f(1, 0, 0);
-				glLineWidth(1);
-				glBegin(GL_LINE_LOOP);
-				{
-					glVertex3f(static_block[i][j].max_x, 1, static_block[i][j].max_z);
-					glVertex3f(static_block[i][j].min_x, 1, static_block[i][j].max_z);
-					glVertex3f(static_block[i][j].min_x, 1, static_block[i][j].min_z);
-					glVertex3f(static_block[i][j].max_x, 1, static_block[i][j].min_z);
-				}
-				glEnd();
-				glLineWidth(1); // 블럭 위치
-			}
-			else if (makeboard[i][j] == 2)
-			{
-				glPushMatrix();
-				{
-					glTranslatef(i * 1.1 - 15, 0, j * 1.1 - 15);
-					item();
-				}
-				glPopMatrix(); // 아이템 표시
-				glColor3f(0, 1, 0);
-				glLineWidth(1);
-				glBegin(GL_LINE_LOOP);
-				{
-					glVertex3f(static_block[i][j].max_x, 1, static_block[i][j].max_z);
-					glVertex3f(static_block[i][j].min_x, 1, static_block[i][j].max_z);
-					glVertex3f(static_block[i][j].min_x, 1, static_block[i][j].min_z);
-					glVertex3f(static_block[i][j].max_x, 1, static_block[i][j].min_z);
-				}
-				glEnd();
-				glLineWidth(1); // 아이템 위치
-			}
-			else if (makeboard[i][j] == 3)
-			{
-				glTranslatef(i * 1.1  15, 1.5, j * 1.1 - 15);
-				glColor3f(0.0, 0.0, 0.0);
+	if (h == 0)
+		h = 1;
 
-				glBindTexture(GL_TEXTURE_2D, textures[1]);
-				glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_SPHERE_MAP);
-				glBegin(GL_QUADS);
-				{
-					glTexCoord2f(1, 1);
-					glVertex3f(-1.0f, 2.0f, 1.0f);
-					glTexCoord2f(0, 1);
-					glVertex3f(-1.0f, -2.0f, 1.0f);
-					glTexCoord2f(0, 0);
-					glVertex3f(1.0f, -2.0f, 1.0f);
-					glTexCoord2f(1, 0);
-					glVertex3f(1.0f, 2.0f, 1.0f);
-				}
-				glEnd();
-				//오른쪽
-				glBindTexture(GL_TEXTURE_2D, textures[1]);
-				glBegin(GL_QUADS);
-				{
-					glTexCoord2f(1, 1);
-					glVertex3f(1.0f, 2.0f, 1.0f);
-					glTexCoord2f(0, 1);
-					glVertex3f(1.0f, -2.0f, 1.0f);
-					glTexCoord2f(0, 0);
-					glVertex3f(1.0f, -2.0f, -1.0f);
-					glTexCoord2f(1, 0);
-					glVertex3f(1.0f, 2.0f, -1.0f);
-				}
-				glEnd();
-				//뒷쪽
-				glBindTexture(GL_TEXTURE_2D, textures[1]);
-				glBegin(GL_QUADS);
-				{
-					glTexCoord2f(1, 1);
-					glVertex3f(1.0f, 2.0f, -1.0f);
-					glTexCoord2f(0, 1);
-					glVertex3f(1.0f, -2.0f, -1.0f);
-					glTexCoord2f(0, 0);
-					glVertex3f(-1.0f, -2.0f, -1.0f);
-					glTexCoord2f(1, 0);
-					glVertex3f(-1.0f, 2.0f, -1.0f);
-				}
-				glEnd();
-				////왼쪽
-				glBindTexture(GL_TEXTURE_2D, textures[1]);
-				glBegin(GL_QUADS);
-				{
-					glTexCoord2f(1, 1);
-					glVertex3f(-1.0f, 2.0f, -1.0f);
-					glTexCoord2f(0, 1);
-					glVertex3f(-1.0f, -2.0f, -1.0f);
-					glTexCoord2f(0, 0);
-					glVertex3f(-1.0f, -2.0f, 1.0f);
-					glTexCoord2f(1, 0);
-					glVertex3f(-1.0f, 2.0f, 1.0f);
-				}
-				glEnd();
-				////아랫쪽
-				glBindTexture(GL_TEXTURE_2D, textures[1]);
-				glBegin(GL_QUADS);
-				{
-					glTexCoord2f(1, 1);
-					glVertex3f(-1.0f, -2.0f, 1.0f);
-					glTexCoord2f(0, 1);
-					glVertex3f(-1.0f, -2.0f, -1.0f);
-					glTexCoord2f(0, 0);
-					glVertex3f(1.0f, -2.0f, -1.0f);
-					glTexCoord2f(1, 0);
-					glVertex3f(1.0f, -2.0f, 1.0f);
-				}
-				glEnd();
-				////윗쪽
-				glBindTexture(GL_TEXTURE_2D, textures[1]);
-				glBegin(GL_QUADS);
-				{
-					glTexCoord2f(1, 1);
-					glVertex3f(-1.0f, 2.0f, 1.0f);
-					glTexCoord2f(0, 1);
-					glVertex3f(-1.0f, 2.0f, -1.0f);
-					glTexCoord2f(0, 0);
-					glVertex3f(1.0f, 2.0f, -1.0f);
-					glTexCoord2f(1, 0);
-					glVertex3f(1.0f, 2.0f, 1.0f);
-				}
-				glEnd();
-			}
-		}
+	ratio = 1.0f * w / h;
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+
+
+	glViewport(0, 0, w, h);
+
+	gluPerspective(45, ratio, 1, 1000);
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+	gluLookAt(x, y, z, x + lx, y + ly, z + lz, 0.0f, 1.0f, 0.0f);
+}
+
+void loadTexture(void) {
+	AUX_RGBImageRec* pTextureImage = auxDIBImageLoad("Data/monalisa.bmp");
+
+	if (pTextureImage != NULL) {
+		glGenTextures(1, &g_textureID);
+
+		glBindTexture(GL_TEXTURE_2D, g_textureID);
+
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+		glTexImage2D(GL_TEXTURE_2D, 0, 3, pTextureImage->sizeX, pTextureImage->sizeY, 0,
+			GL_RGB, GL_UNSIGNED_BYTE, pTextureImage->data);
+	}
+
+	if (pTextureImage) {
+		if (pTextureImage->data)
+			free(pTextureImage->data);
+
+		free(pTextureImage);
 	}
 }
 
-void draw_block()
+
+void drawCircle() {
+	glColor3f(1.0f, 0.7f, 1.0f);
+	glTranslatef(0.0f, 5.0f, 0.0f);
+	glutSolidSphere(0.75f, 20, 20);
+}
+
+void MyTimer(int value) {
+	x1 += dx;
+	if (x1 > 10 || x1 < -1) {
+		dx *= -1;
+	}
+	glutPostRedisplay();
+	glutTimerFunc(40, MyTimer, 1);
+
+}
+
+void drawStartPoint()
 {
-	if (map == 0)
+	//도입길
+	glBegin(GL_QUADS);
+	glColor3f(0.9f, 0.9f, 0.9f);
+	glVertex3f(-5.0f, 0.0f, 30.0f);
+	glVertex3f(5.0f, 0.0f, 30.0f);
+	glVertex3f(5.0f, 0.0f, 0.0f);
+	glVertex3f(-5.0f, 0.0f, 0.0f);
+	glEnd();
+
+
+
+	//문
+	glBegin(GL_QUADS);
+	glColor3f(0.4f, 0.4f, 0.4f);
+	glVertex3f(-5.0f, 0.0f, 30.0f);
+	glVertex3f(5.0f, 0.0f, 30.0f);
+	glVertex3f(5.0f, 5.0f, 30.0f);
+	glVertex3f(-5.0f, 5.0f, 30.0f);
+	glEnd();
+}
+
+void drawFullWall(float leftX, float midZ, bool garosero)
+{
+	if (garosero == 0)
 	{
-		glColor3f(0.3, 0.5, 0.5);
+		glBegin(GL_QUADS);
+		glColor3f(0.2f, 0.0f, 0.1f);
+		glVertex3f(leftX, -50.0f, midZ);
+		glVertex3f(leftX, -45.0f, midZ);
+		glVertex3f(leftX + 40.0f, -45.0f, midZ);
+		glVertex3f(leftX + 40.0f, -50.0f, midZ);
+		glEnd();
 	}
-	if (map == 1)
+	else
 	{
-		glColor3f(0.7, 0.1, 0.7);
+		glBegin(GL_QUADS);
+		glColor3f(0.2f, 0.0f, 0.1f);
+		glVertex3f(leftX, -50.0f, midZ);
+		glVertex3f(leftX, -45.0f, midZ);
+		glVertex3f(leftX, -45.0f, midZ + 40.0f);
+		glVertex3f(leftX, -50.0f, midZ + 40.0f);
+		glEnd();
 	}
-	if (map == 2)
+}
+
+void drawWall(float leftX, float midZ, bool garosero)
+{
+	if (garosero == 0)
 	{
-		glColor3f(0.0, 0.8, 0.3);
+		glBegin(GL_QUADS);
+		glColor3f(0.2f, 0.0f, 0.1f);
+		glVertex3f(leftX, -50.0f, midZ);
+		glVertex3f(leftX, -45.0f, midZ);
+		glVertex3f(leftX + 15.0f, -45.0f, midZ);
+		glVertex3f(leftX + 15.0f, -50.0f, midZ);
+		glEnd();
 	}
-	if (map == 3)
+	else
 	{
-		glColor3f(0.7, 0.2, 0.3);
+		glBegin(GL_QUADS);
+		glColor3f(0.2f, 0.0f, 0.1f);
+		glVertex3f(leftX, -50.0f, midZ);
+		glVertex3f(leftX, -45.0f, midZ);
+		glVertex3f(leftX, -45.0f, midZ + 15.0f);
+		glVertex3f(leftX, -50.0f, midZ + 15.0f);
+		glEnd();
 	}
+}
+
+void drawFloor(float midX, float midZ, float size)
+{
+	glBegin(GL_QUADS);
+	glColor3f(0.2f, 0.9f, 0.9f);
+	glVertex3f(midX - size, -50.0f, midZ - size);
+	glVertex3f(midX + size, -50.0f, midZ - size);
+	glVertex3f(midX + size, -50.0f, midZ + size);
+	glVertex3f(midX - size, -50.0f, midZ + size);
+	glEnd();
+}
+
+void drawBokdoWall(float leftX, float midZ, bool garosero)
+{
+	if (garosero == 0)
+	{
+		glBegin(GL_QUADS);
+		glColor3f(0.2f, 0.0f, 0.1f);
+		glVertex3f(leftX, -50.0f, midZ);
+		glVertex3f(leftX, -45.0f, midZ);
+		glVertex3f(leftX + 20.0f, -45.0f, midZ);
+		glVertex3f(leftX + 20.0f, -50.0f, midZ);
+		glEnd();
+	}
+	else
+	{
+		glBegin(GL_QUADS);
+		glColor3f(0.2f, 0.0f, 0.1f);
+		glVertex3f(leftX, -50.0f, midZ);
+		glVertex3f(leftX, -45.0f, midZ);
+		glVertex3f(leftX, -45.0f, midZ + 20.0f);
+		glVertex3f(leftX, -50.0f, midZ + 20.0f);
+		glEnd();
+	}
+}
+
+void drawPicture(float leftX, float midZ, bool garosero, int pictureNum)
+{
+
+	leftX = leftX - 1.2f;
+	if (garosero == 0)
+	{
+		glBindTexture(GL_TEXTURE_2D, g_textureID);
+		glBegin(GL_QUADS);
+		glTexCoord2f(0, 0); glVertex3f(leftX, -49.0f, midZ);
+		glTexCoord2f(0, 1); glVertex3f(leftX, -45.8f, midZ);
+		glTexCoord2f(1, 1); glVertex3f(leftX + 2.4f, -45.8f, midZ);
+		glTexCoord2f(1, 0); glVertex3f(leftX + 2.4f, -49.0f, midZ);
+		glEnd();
+
+	}
+	else
+	{
+		glBindTexture(GL_TEXTURE_2D, g_textureID);
+		glBegin(GL_QUADS);
+		glTexCoord2f(0, 0);  glVertex3f(leftX, -49.0f, midZ);
+		glTexCoord2f(0, 1); glVertex3f(leftX, -45.8f, midZ);
+		glTexCoord2f(1, 1); glVertex3f(leftX, -45.8f, midZ + 2.4f);
+		glTexCoord2f(1, 0); glVertex3f(leftX, -49.0f, midZ + 2.4f);
+		glEnd();
+
+	}
+}
+
+void drawGallary()
+{
+	//문
+	glBegin(GL_QUADS);
+	glColor3f(0.4f, 0.2f, 0.2f);
+	glVertex3f(-5.0f, -50.0f, -20.0f);
+	glVertex3f(5.0f, -50.0f, -20.0f);
+	glVertex3f(5.0f, -45.0f, -20.0f);
+	glVertex3f(-5.0f, -45.0f, -20.0f);
+	glEnd();
+
+	glColor3f(0.4f, 0.0f, 0.0f);
+	//미술관 복도 아래
+	glBegin(GL_QUADS);
+	glVertex3f(-5.0f, -50.0f, -20.0f);
+	glVertex3f(5.0f, -50.0f, -20.0f);
+	glVertex3f(5.0f, -50.0f, 0.0f);
+	glVertex3f(-5.0f, -50.0f, 0.0f);
+	glEnd();
+
+	//미술관 복도 왼쪽
+	glBegin(GL_QUADS);
+	glVertex3f(-5.0f, -50.0f, -20.0f);
+	glVertex3f(-5.0f, -50.0f, 0.0f);
+	glVertex3f(-5.0f, -45.0f, 0.0f);
+	glVertex3f(-5.0f, -45.0f, -20.0f);
+	glEnd();
+
+	//미술관 복도 오른쪽
+	glBegin(GL_QUADS);
+	glVertex3f(5.0f, -50.0f, -20.0f);
+	glVertex3f(5.0f, -50.0f, 0.0f);
+	glVertex3f(5.0f, -45.0f, 0.0f);
+	glVertex3f(5.0f, -45.0f, -20.0f);
+	glEnd();
+
+	//미술관 땅
+	drawFloor(0.0f, 20.0f, 20.0f);
+	drawWall(-20.0f, 0.0f, 0);
+	drawWall(5.0f, 0.0f, 0);
+	drawWall(-20.0f, 40.0f, 0);
+	drawWall(5.0f, 40.0f, 0);
+	drawWall(-20.0f, 0.0f, 1);
+	drawWall(-20.0f, 25.0f, 1);
+	drawWall(20.0f, 0.0f, 1);
+	drawWall(20.0f, 25.0f, 1);
+	//미술관 땅1
+	drawFloor(-60.0f, 20.0f, 20.0f);
+	drawWall(20.0f - 60.0f, 0.0f, 1);
+	drawWall(20.0f - 60.0f, 25.0f, 1);
+	drawFullWall(-20.0f - 60.0f, 0.0f, 1);
+	drawFullWall(-20.0f - 60.0f, 0.0f, 0);
+	drawFullWall(-20.0f - 60.0f, 40.0f, 0);
+	drawPicture(-79.5f, 20.0f, 1, 0);
+	//미술관 땅2
+	drawFloor(60.0f, 20.0f, 20.0f);
+	drawWall(-20.0f + 60.0f, 0.0f, 1);
+	drawWall(-20.0f + 60.0f, 25.0f, 1);
+	drawFullWall(20.0f + 60.0f, 0.0f, 1);
+	drawFullWall(-20.0f + 60.0f, 0.0f, 0);
+	drawFullWall(-20.0f + 60.0f, 40.0f, 0);
+	drawPicture(79.5f, 20.0f, 1, 0);
+	//미술관 땅3
+	drawFloor(0, 80.0f, 20.0f);
+	drawWall(-20.0f, 60.0f, 0);
+	drawWall(5.0f, 60.0f, 0);
+	drawFullWall(20.0f, 60.0f, 1);
+	drawFullWall(-20.0f, 100.0f, 0);
+	drawFullWall(-20.0f, 60.0f, 1);
+	drawPicture(0.0f, 99.5f, 0, 0);
+
+	//미술관 복도1
+	glBegin(GL_QUADS);
+	glColor3f(0.5f, 0.9f, 0.9f);
+	glVertex3f(-40.0f, -50.0f, 15.0f);
+	glVertex3f(-40.0f, -50.0f, 25.0f);
+	glVertex3f(-20.0f, -50.0f, 25.0f);
+	glVertex3f(-20.0f, -50.0f, 15.0f);
+	glEnd();
+	drawBokdoWall(-40.0f, 15.0f, 0);
+	drawBokdoWall(-40.0f, 25.0f, 0);
+
+	//미술관 복도2
+	glBegin(GL_QUADS);
+	glColor3f(0.5f, 0.9f, 0.9f);
+	glVertex3f(40.0f, -50.0f, 15.0f);
+	glVertex3f(40.0f, -50.0f, 25.0f);
+	glVertex3f(20.0f, -50.0f, 25.0f);
+	glVertex3f(20.0f, -50.0f, 15.0f);
+	glEnd();
+	drawBokdoWall(20.0f, 15.0f, 0);
+	drawBokdoWall(20.0f, 25.0f, 0);
+
+	//미술관 복도3
+	glBegin(GL_QUADS);
+	glColor3f(0.5f, 0.9f, 0.9f);
+	glVertex3f(-5.0f, -50.0f, 40.0f);
+	glVertex3f(5.0f, -50.0f, 40.0f);
+	glVertex3f(5.0f, -50.0f, 60.0f);
+	glVertex3f(-5.0f, -50.0f, 60.0f);
+	glEnd();
+	drawBokdoWall(-5.0f, 40.0f, 1);
+	drawBokdoWall(5.0f, 40.0f, 1);
+}
+
+void drawMap()
+{
+	drawStartPoint();
+	drawGallary();
+}
+
+void renderScene(void) {
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	drawMap();
+
 	glPushMatrix();
-	{
-		glNormal3f(0, 1, 0);
-		glTranslatef(0, 1.1, 0);
-		glutSolidCube(1);
+	glColor3f(0.0f, 0.9f, 0.9f);
+	glBegin(GL_QUADS);
+	glVertex3f(-1.0f, -1.0f + x1, 1.0f);		// 앞면
+	glVertex3f(1.0f, -1.0f + x1, 1.0f);
+	glVertex3f(1.0f, 1.0f + x1, 1.0f);
+	glVertex3f(-1.0f, 1.0f + x1, 1.0f);
 
-		glTranslatef(0, 1.1, 0);
-		glutSolidCube(1);
+	glVertex3f(1.0f, -1.0f + x1, -1.0f);
+	glVertex3f(-1.0f, -1.0f + x1, -1.0f);		// 뒷면
+	glVertex3f(-1.0f, 1.0f + x1, -1.0f);
+	glVertex3f(1.0f, 1.0f + x1, -1.0f);
 
-		glTranslatef(0, 1.1, 0);
-		glutSolidCube(1);
+	glVertex3f(-1.0f, 1.0f + x1, 1.0f);		// 윗면
+	glVertex3f(1.0f, 1.0f + x1, 1.0f);
+	glVertex3f(1.0f, 1.0f + x1, -1.0f);
+	glVertex3f(-1.0f, 1.0f + x1, -1.0f);
 
-		glTranslatef(0, 1.1, 0);
-		glutSolidCube(1);
+	glVertex3f(-1.0f, -1.0f + x1, -1.0f);		// 아랫면
+	glVertex3f(1.0f, -1.0f + x1, -1.0f);
+	glVertex3f(1.0f, -1.0f + x1, 1.0f);
+	glVertex3f(-1.0f, -1.0f + x1, 1.0f);
 
-		glTranslatef(0, 1.1, 0);
-		glutSolidCube(1);
-	}
+	glVertex3f(1.0f, -1.0f + x1, 1.0f);		// 우측면
+	glVertex3f(1.0f, -1.0f + x1, -1.0f);
+	glVertex3f(1.0f, 1.0f + x1, -1.0f);
+	glVertex3f(1.0f, 1.0f + x1, 1.0f);
+
+	glVertex3f(-1.0f, -1.0f + x1, -1.0f);	// 좌측면
+	glVertex3f(-1.0f, -1.0f + x1, 1.0f);
+	glVertex3f(-1.0f, 1.0f + x1, 1.0f);
+	glVertex3f(-1.0f, 1.0f + x1, -1.0f);
+	glEnd();
 	glPopMatrix();
+
+	glutSwapBuffers();
 }
 
-void item()
+void orientMe(float ang) {
+
+	lx = sin(ang);
+	lz = -cos(ang);
+	glLoadIdentity();
+	gluLookAt(x, y, z, x + lx, y + ly, z + lz, 0.0f, 1.0f, 0.0f);
+}
+
+
+void moveMeFlat(int i) {
+	x = x + i * (lx) * 0.2;
+	z = z + i * (lz) * 0.2;
+	glLoadIdentity();
+	gluLookAt(x, y, z, x + lx, y + ly, z + lz, 0.0f, 1.0f, 0.0f);
+}
+
+void processNormalKeys(unsigned char key, int x, int y) {
+
+	if (key == 27)
+		exit(0);
+}
+
+
+void inputKey(unsigned char key, int x, int y) {
+
+	switch (key) {
+
+	case 'a':
+		angle -= 0.03f;
+		orientMe(angle);
+		break;
+	case 'd':
+		angle += 0.03f;
+		orientMe(angle);
+		break;
+	case 'f':
+		angle += 110.0018f;
+		orientMe(angle);
+		break;
+	case 'w':
+		moveMeFlat(1);
+		break;
+	case 's':
+		moveMeFlat(-1);
+		break;
+	}
+}
+
+
+void glInit()
 {
-	glPushMatrix();
-	{
-		glEnable(GL_BLEND);
-		glPushMatrix();
-		{
-			glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-			//glColor3f(0.7, 0.2, 0.2);
-			glTranslatef(0, 2, 0);
-			glColor4f(0, 0.8, 0, 0.8);
-			glRotatef(obj_rot, 0, 1, 0);
-			glutSolidCube(0.3);
-		}
-		glPopMatrix();
-		glPushMatrix();
-		{
-			glColor4f(0.7, 0, 0, 0.5);
-			glTranslatef(0, 2, 0);
-			glRotatef(obj_rot, 0, 1, 0);
-			glRotatef(90, -1, 0, -1);
-			glutSolidCube(0.6);
-		}
-		glPopMatrix();
-
-		glDisable(GL_BLEND);
-	}
-	glPopMatrix();
+	loadTexture();
+	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_TEXTURE_2D);
 }
-int main(int argc, char** argv) {
+
+
+int main(int argc, char** argv)
+{
 	glutInit(&argc, argv);
-	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
-	glutInitWindowSize(640, 480);
+	glutInitDisplayMode(GLUT_DEPTH | GLUT_DOUBLE | GLUT_RGBA);
 	glutInitWindowPosition(100, 100);
-	glutCreateWindow("Selection Mode - Picking");
-	InitGL();
-	glutDisplayFunc(DrawGLScene);
-	glutReshapeFunc(MyReshape);
-	glutMouseFunc(MyMouse);
-	glutMotionFunc(MyMotion);
+	glutInitWindowSize(900, 700);
+	glutCreateWindow("project");
+
+	glInit();
+	glutKeyboardFunc(inputKey);
+
+	glutDisplayFunc(renderScene);
+	glutIdleFunc(renderScene);
+	glutTimerFunc(40, MyTimer, 1);
+	glutReshapeFunc(changeSize);
 
 	glutMainLoop();
-	return 0;
+
+	return(0);
 }
