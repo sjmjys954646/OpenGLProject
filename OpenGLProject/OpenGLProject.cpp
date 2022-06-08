@@ -1,9 +1,18 @@
-﻿#include <gl/glut.h>
+﻿#define _CRT_SECURE_NO_WARNINGS
+#include <gl/glut.h>
 #include <math.h>
 #include <gl/gl.h>
-#include <gl/glu.h>
-
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+#include <gl/freeglut.h>
 #include <stdlib.h>
+#include "glaux.h"
+#include <GL/GLU.h>
+#include <GL/glut.h>
+#include <string>
+
+using namespace std;
 
 static float angle = 0.0, ratio;
 static float x = 0.0f, y = 1.75f - 50.0f, z = 0.0f;
@@ -11,6 +20,26 @@ static float lx = 0.0f, ly = 0.0f, lz = 1.0f;
 
 GLfloat dx = 0.2;
 GLfloat x1;
+
+GLuint	texture[30];
+GLuint g_textureID = -1;
+
+AUX_RGBImageRec* LoadBMP(const char* Filename) {
+	FILE* File = NULL;
+
+	if (!Filename) {
+		return NULL;
+	}
+
+	File = fopen(Filename, "r");
+
+	if (File) {
+		fclose(File);
+		return auxDIBImageLoad(Filename);
+	}
+
+	return NULL;
+}
 
 void changeSize(int w, int h)
 {
@@ -28,8 +57,29 @@ void changeSize(int w, int h)
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 	gluLookAt(x, y, z, x + lx, y + ly, z + lz, 0.0f, 1.0f, 0.0f);
+}
 
+void loadTexture(void) {
+	AUX_RGBImageRec* pTextureImage = auxDIBImageLoad("Data/monalisa.bmp");
 
+	if (pTextureImage != NULL) {
+		glGenTextures(1, &g_textureID);
+
+		glBindTexture(GL_TEXTURE_2D, g_textureID);
+
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+		glTexImage2D(GL_TEXTURE_2D, 0, 3, pTextureImage->sizeX, pTextureImage->sizeY, 0,
+			GL_RGB, GL_UNSIGNED_BYTE, pTextureImage->data);
+	}
+
+	if (pTextureImage) {
+		if (pTextureImage->data)
+			free(pTextureImage->data);
+
+		free(pTextureImage);
+	}
 }
 
 
@@ -155,6 +205,34 @@ void drawBokdoWall(float leftX, float midZ, bool garosero)
 	}
 }
 
+void drawPicture(float leftX, float midZ, bool garosero, int pictureNum)
+{
+
+	leftX = leftX - 1.2f;
+	if (garosero == 0)
+	{
+		glBindTexture(GL_TEXTURE_2D, g_textureID);
+		glBegin(GL_QUADS);
+		glTexCoord2f(0, 0); glVertex3f(leftX, -49.0f, midZ);
+		glTexCoord2f(0, 1); glVertex3f(leftX, -45.8f, midZ);
+		glTexCoord2f(1, 1); glVertex3f(leftX + 2.4f, -45.8f, midZ);
+		glTexCoord2f(1, 0); glVertex3f(leftX + 2.4f, -49.0f, midZ);
+		glEnd();
+
+	}
+	else
+	{
+		glBindTexture(GL_TEXTURE_2D, g_textureID);
+		glBegin(GL_QUADS);
+		glTexCoord2f(0, 0);  glVertex3f(leftX, -49.0f, midZ);
+		glTexCoord2f(0, 1); glVertex3f(leftX, -45.8f, midZ);
+		glTexCoord2f(1, 1); glVertex3f(leftX, -45.8f, midZ + 2.4f);
+		glTexCoord2f(1, 0); glVertex3f(leftX, -49.0f, midZ + 2.4f);
+		glEnd();
+
+	}
+}
+
 void drawGallary()
 {
 	//문
@@ -208,6 +286,7 @@ void drawGallary()
 	drawFullWall(-20.0f - 60.0f, 0.0f, 1);
 	drawFullWall(- 20.0f - 60.0f, 0.0f, 0);
 	drawFullWall(- 20.0f - 60.0f, 40.0f, 0); 
+	drawPicture(-79.5f, 20.0f, 1 , 0);
 	//미술관 땅2
 	drawFloor(60.0f, 20.0f, 20.0f);
 	drawWall(-20.0f + 60.0f, 0.0f, 1);
@@ -215,6 +294,7 @@ void drawGallary()
 	drawFullWall(20.0f + 60.0f, 0.0f, 1);
 	drawFullWall(-20.0f + 60.0f, 0.0f, 0);
 	drawFullWall(-20.0f + 60.0f, 40.0f, 0);
+	drawPicture(79.5f, 20.0f, 1 ,0);
 	//미술관 땅3
 	drawFloor(0, 80.0f, 20.0f);
 	drawWall(-20.0f , 60.0f, 0);
@@ -222,6 +302,7 @@ void drawGallary()
 	drawFullWall(20.0f , 60.0f, 1);
 	drawFullWall(-20.0f , 100.0f, 0);
 	drawFullWall(-20.0f , 60.0f, 1);
+	drawPicture(0.0f, 99.5f, 0, 0);
 
 	//미술관 복도1
 	glBegin(GL_QUADS);
@@ -262,8 +343,6 @@ void drawMap()
 	drawStartPoint();
 	drawGallary();
 }
-
-
 
 void renderScene(void) {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -343,6 +422,10 @@ void inputKey(unsigned char key, int x, int y) {
 		angle += 0.03f;
 		orientMe(angle);
 		break;
+	case 'f':
+		angle += 110.0018f;
+		orientMe(angle);
+		break;
 	case 'w':
 		moveMeFlat(1);
 		break;
@@ -355,7 +438,9 @@ void inputKey(unsigned char key, int x, int y) {
 
 void glInit()
 {
+	loadTexture();
 	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_TEXTURE_2D);	
 }
 
 
