@@ -178,7 +178,14 @@ void DrawGLScene() {
 	glVertex2f(1.5f, -1.5f);
 	glEnd();
 
-
+	beginRenderText(g_nWindowWidth, g_nWindowHeight);
+	{
+		glColor3f(1.0f, 1.0f, 1.0f);
+		u = (1.f - 0.75f) / 2.f * g_nWindowWidth;
+		v = (1.f - (-0.75f)) / 2.f * g_nWindowHeight;
+		renderText(u, v, BITMAP_FONT_TYPE_HELVETICA_18, "hello");
+	}
+	endRenderText();
 	//Draw UI
 	DrawUI();
 
