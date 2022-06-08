@@ -18,10 +18,17 @@
     <ClCompile Include="OpenGLProject.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+<<<<<<< HEAD
     <ClCompile Include="map.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="..\first-person.cpp">
+=======
+    <ClCompile Include="junseok123.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="pov.cpp">
+>>>>>>> a74eb8763e0a9051e311a0c4435783e39f4420ef
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
