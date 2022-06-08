@@ -11,15 +11,44 @@
 #include <GL/GLU.h>
 #include <GL/glut.h>
 #include <string>
+#include <vector>
+#include "bitmap_fonts.h"
 
 using namespace std;
-
-static float angle = 0.0, ratio;
-static float x = 0.0f, y = 1.75f - 50.0f, z = 0.0f;
+using namespace glm;
+static float ang = 0.0, ratio;
+static float x = 0.0f, y = 1.75f , z = 5.0f;
 static float lx = 0.0f, ly = 0.0f, lz = 1.0f;
 
 GLfloat dx = 0.2;
 GLfloat x1;
+static char coor[255];
+static char message[255];
+int    g_nWindowWidth;
+int    g_nWindowHeight;
+void DrawCube(float size);
+void addMob(vec3 position, float size);
+void AddContactForce();
+void DrawCubeTex();
+
+bool die = false;
+
+
+typedef struct {
+	vec3 p = vec3(x, y, z);
+}player;
+player Player;
+
+struct Mob {
+	vec3 p; //position
+	vec3 v; //velocity
+	vec3 force; //force
+	float size; //size
+	float m; //mass
+};
+
+vector<Mob> mobs;
+
 
 GLuint	texture[30];
 GLuint g_textureID = -1;
@@ -90,13 +119,54 @@ void drawCircle() {
 }
 
 void MyTimer(int value) {
-	x1 += dx;
-	if (x1 > 10 || x1 < -1) {
-		dx *= -1;
-	}
+	Player.p = vec3(x, y, z);
 	glutPostRedisplay();
-	glutTimerFunc(40, MyTimer, 1);
+	AddContactForce();
+	if (die == false)
+		glutTimerFunc(40, MyTimer, 1);
+	else
+	{
+		x = 300;
 
+		z = 300;
+	}
+
+}
+
+void DrawCube(float size)
+{
+	glColor3f(0.0f, 0.9f, 0.9f);
+	glutSolidCube(size);
+	//glBegin(GL_QUADS);
+	//glVertex3f(-size, -size, size);		// 앞면
+	//glVertex3f(size, -size, size);
+	//glVertex3f(size, size, size);
+	//glVertex3f(-size, size, size);
+
+	//glVertex3f(size, -size, -size);
+	//glVertex3f(-size, -size, -size);		// 뒷면
+	//glVertex3f(-size, size, -size);
+	//glVertex3f(size, size, -size);
+
+	//glVertex3f(-size, size, size);		// 윗면
+	//glVertex3f(size, size, size);
+	//glVertex3f(size, size, -size);
+	//glVertex3f(-size, size, -size);
+
+	//glVertex3f(-size, -size, -size);		// 아랫면
+	//glVertex3f(size, -size, -size);
+	//glVertex3f(size, -size, size);
+	//glVertex3f(-size, -size, size);
+
+	//glVertex3f(size, -size, size);		// 우측면
+	//glVertex3f(size, -size, -size);
+	//glVertex3f(size, size, -size);
+	//glVertex3f(size, size, size);
+
+	//glVertex3f(-size, -size, -size);	// 좌측면
+	//glVertex3f(-size, -size, size);
+	//glVertex3f(-size, size, size);
+	//glVertex3f(-size, size, -size);
 }
 
 void drawStartPoint()
@@ -383,7 +453,29 @@ void renderScene(void) {
 	glVertex3f(-1.0f, 1.0f + x1, -1.0f);
 	glEnd();
 	glPopMatrix();
+	//DrawCube(1.0f);
+	glPushMatrix();
+	glLoadIdentity();
+	glTranslatef(x, y, z + 2);
+	addMob(vec3(x,y,z+2),0.5);
+	glPopMatrix();
+	//DrawCubeTex();
 
+	glEnd();
+
+	sprintf(coor, "x : %f y : %f z : %f", x, y, z);
+	sprintf(message, "You DIED");
+	beginRenderText(g_nWindowWidth, g_nWindowHeight);
+	{
+		glColor3f(1.f, 1.f, 1.0f);
+		int u = (1.f - 0.75f) / 4.f * g_nWindowWidth;
+		int v = (1.f - (-1.75f)) / 4.f * g_nWindowHeight;
+		if (die == false)
+			renderText(g_nWindowWidth - 0.95, g_nWindowHeight + 0.9, BITMAP_FONT_TYPE_HELVETICA_18, coor);
+		else
+			renderText(g_nWindowWidth - 0.08, g_nWindowHeight, BITMAP_FONT_TYPE_HELVETICA_18, message);
+	}
+	endRenderText();
 	glutSwapBuffers();
 }
 
@@ -393,6 +485,7 @@ void orientMe(float ang) {
 	lz = -cos(ang);
 	glLoadIdentity();
 	gluLookAt(x, y, z, x + lx, y + ly, z + lz, 0.0f, 1.0f, 0.0f);
+	sprintf(coor, "x : %f y : %f z : %f", x, y, z);
 }
 
 
@@ -401,6 +494,7 @@ void moveMeFlat(int i) {
 	z = z + i * (lz) * 0.2;
 	glLoadIdentity();
 	gluLookAt(x, y, z, x + lx, y + ly, z + lz, 0.0f, 1.0f, 0.0f);
+	sprintf(coor, "x : %f y : %f z : %f", x, y, z);
 }
 
 void processNormalKeys(unsigned char key, int x, int y) {
@@ -409,22 +503,66 @@ void processNormalKeys(unsigned char key, int x, int y) {
 		exit(0);
 }
 
+void addMob(vec3 position, float size)
+{
+	Mob newmob;
 
+	vec3 _pos(0, 0, 0);
+	_pos.x = position.x;
+	_pos.y = position.y;
+	_pos.z = position.z;
+	float _size = size;
+	//newmob.p = _pos;
+	newmob.p.x = _pos.x;
+	newmob.p.y = _pos.y;
+	newmob.p.z = _pos.z;
+	
+	newmob.size = _size;
+
+	/*glPushMatrix();
+	glTranslatef(position.x, position.y, position.z);*/
+	DrawCube(size);
+	//glPopMatrix();
+	mobs.push_back(newmob);
+}
+
+void AddContactForce()
+{
+	for (int i = 0; i < mobs.size(); i++)
+	{
+		for (int j = i + 1; j < mobs.size(); j++)
+		{
+			vec3 dis = mobs[i].p - Player.p;       //dis=반지름 사이
+			//compute length
+			float L = length(dis);                    //L= 반지름 사이의 거리
+
+			dis = normalize(dis);
+			if (L <= mobs[i].size)          //L이 반지름 사이의 거리보다 작다? => 두 공이 겹쳤다
+			{
+				die = true;
+				//compute and add force
+				/*vec3 force = stiff * ((balls[i].r + balls[j].r) - L) * dis;
+				balls[i].force += force;
+				balls[j].force -= force;*/
+			}
+		}
+	}
+}
 void inputKey(unsigned char key, int x, int y) {
 
 	switch (key) {
 
 	case 'a':
-		angle -= 0.03f;
-		orientMe(angle);
+		ang -= 0.03f;
+		orientMe(ang);
 		break;
 	case 'd':
-		angle += 0.03f;
-		orientMe(angle);
+		ang += 0.03f;
+		orientMe(ang);
 		break;
 	case 'f':
-		angle += 110.0018f;
-		orientMe(angle);
+		ang += 110.0018f;
+		orientMe(ang);
 		break;
 	case 'w':
 		moveMeFlat(1);

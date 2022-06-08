@@ -35,10 +35,7 @@ void DrawCubeTex();
 
 bool die = false;
 
-typedef struct {
-	float Left, Right;
-	float Top, Bottom;
-}Rect;
+
 typedef struct {
 	vec3 p = vec3(x, y, z);
 }player;
@@ -139,38 +136,38 @@ void MyTimer(int value) {
 void DrawCube(float size)
 {
 	glColor3f(0.0f, 0.9f, 0.9f);
-	glBegin(GL_QUADS);
-	glVertex3f(-size, -size, size);		// ¾Õ¸é
-	glVertex3f(size, -size, size);
-	glVertex3f(size, size, size);
-	glVertex3f(-size, size, size);
+	glutSolidCube(size);
+	//glBegin(GL_QUADS);
+	//glVertex3f(-size, -size, size);		// ¾Õ¸é
+	//glVertex3f(size, -size, size);
+	//glVertex3f(size, size, size);
+	//glVertex3f(-size, size, size);
 
-	glVertex3f(size, -size, -size);
-	glVertex3f(-size, -size, -size);		// µÞ¸é
-	glVertex3f(-size, size, -size);
-	glVertex3f(size, size, -size);
+	//glVertex3f(size, -size, -size);
+	//glVertex3f(-size, -size, -size);		// µÞ¸é
+	//glVertex3f(-size, size, -size);
+	//glVertex3f(size, size, -size);
 
-	glVertex3f(-size, size, size);		// À­¸é
-	glVertex3f(size, size, size);
-	glVertex3f(size, size, -size);
-	glVertex3f(-size, size, -size);
+	//glVertex3f(-size, size, size);		// À­¸é
+	//glVertex3f(size, size, size);
+	//glVertex3f(size, size, -size);
+	//glVertex3f(-size, size, -size);
 
-	glVertex3f(-size, -size, -size);		// ¾Æ·§¸é
-	glVertex3f(size, -size, -size);
-	glVertex3f(size, -size, size);
-	glVertex3f(-size, -size, size);
+	//glVertex3f(-size, -size, -size);		// ¾Æ·§¸é
+	//glVertex3f(size, -size, -size);
+	//glVertex3f(size, -size, size);
+	//glVertex3f(-size, -size, size);
 
-	glVertex3f(size, -size, size);		// ¿ìÃø¸é
-	glVertex3f(size, -size, -size);
-	glVertex3f(size, size, -size);
-	glVertex3f(size, size, size);
+	//glVertex3f(size, -size, size);		// ¿ìÃø¸é
+	//glVertex3f(size, -size, -size);
+	//glVertex3f(size, size, -size);
+	//glVertex3f(size, size, size);
 
-	glVertex3f(-size, -size, -size);	// ÁÂÃø¸é
-	glVertex3f(-size, -size, size);
-	glVertex3f(-size, size, size);
-	glVertex3f(-size, size, -size);
+	//glVertex3f(-size, -size, -size);	// ÁÂÃø¸é
+	//glVertex3f(-size, -size, size);
+	//glVertex3f(-size, size, size);
+	//glVertex3f(-size, size, -size);
 }
-
 void renderScene(void) {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -185,8 +182,8 @@ void renderScene(void) {
 	glEnd();
 
 	//DrawCube(1.0f);
-	//addMob(vec3(x,y,z-1),0.2);
-	DrawCubeTex();
+	addMob(vec3(x,y,z-1),0.2);
+	//DrawCubeTex();
 	
 	glEnd();
 	
