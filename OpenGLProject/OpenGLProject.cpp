@@ -17,7 +17,7 @@
 using namespace std;
 using namespace glm;
 static float ang = 0.0, ratio;
-static float x = 0.0f, y = 1.75f - 50.0f , z = 5.0f;
+static float x = 0.0f, y = 1.75f - 50.0f, z = 5.0f;
 static float lx = 0.0f, ly = 0.0f, lz = 1.0f;
 
 GLfloat dx = 0.2;
@@ -604,7 +604,6 @@ void orientMe(float ang) {
 	sprintf(coor, "x : %f y : %f z : %f", x, y, z);
 }
 
-
 void moveMeFlat(int i) {
 	x = x + i * (lx) * 0.2;
 	z = z + i * (lz) * 0.2;
@@ -661,6 +660,7 @@ void AddContactForce()
 		}
 	}
 }
+
 void inputKey(unsigned char key, int x, int y) {
 
 	switch (key) {
