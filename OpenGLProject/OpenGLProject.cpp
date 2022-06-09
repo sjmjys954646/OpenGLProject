@@ -422,15 +422,17 @@ void drawGallary()
 	drawFullWall(-20.0f - 60.0f, 40.0f, 0);
 	drawPicture(-78.5f, 20.0f, 1, 1);
 	drawPannel(-78.5f , 20.0f - 1.6f, 1);
+	drawPannelGround(-50.0f, 15.0f, 45.0f);
 	//미술관 땅2
 	drawFloor(60.0f, 20.0f, 20.0f);
 	drawWall(-20.0f + 60.0f, 0.0f, 1);
 	drawWall(-20.0f + 60.0f, 25.0f, 1);
 	drawFullWall(20.0f + 60.0f, 0.0f, 1);
-	drawFullWall(-20.0f + 60.0f, 0.0f, 0);
+	drawFullWall(-20.0f + 60.0f, 0.0f, 0); 
 	drawFullWall(-20.0f + 60.0f, 40.0f, 0);
 	drawPicture(79.5f, 20.0f, 1, 0);
 	drawPannel(78.5f, 20.0f + 2.8f, 1);
+	drawPannelGround(50.0f, 25.0f, 45.0f);
 	//미술관 땅3
 	drawFloor(0, 80.0f, 20.0f);
 	drawWall(-20.0f, 60.0f, 0);
@@ -526,11 +528,24 @@ void drawStructure()
 	glPushMatrix();
 	{
 		glDisable(GL_TEXTURE_2D);
-		glTranslatef(-60.0f + 10.0f, -50.0f + 2.0f, 20.0f + 10.0f);
+		glColor3f(0.0f, 0.0f, 0.0f);
+		glTranslatef(-60.0f + 10.0f, -50.0f + 2.0f, 20.0f - 10.0f);
+		glRotatef(-90, 0, 1, 0);
 		glutSolidTeapot(2);
 		glEnable(GL_TEXTURE_2D);
 	}
 	glPopMatrix();
+	//3번방
+	glPushMatrix();
+	{
+		glDisable(GL_TEXTURE_2D);
+		glColor3f(0.0f, 0.0f, 0.0f);
+		glTranslatef(60.0f - 10.0f, -50.0f + 2.0f, 20.0f + 10.0f);
+		glutSolidSphere(2,42,10);
+		glEnable(GL_TEXTURE_2D);
+	}
+	glPopMatrix();
+	
 }
 
 void drawMap()
