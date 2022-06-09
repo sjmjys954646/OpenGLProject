@@ -50,7 +50,7 @@ vector<Mob> mobs;
 
 GLuint	texture[30];
 GLuint g_textureID = -1;
-const string textureName[30] = {"Data/monalisa.bmp","Data/gentleman.bmp","Data/girlwithearing2.bmp" };
+const string textureName[30] = {"OpenGLProject/Data/monalisa.bmp","OpenGLProject/Data/gentleman.bmp","OpenGLProject/Data/girlwithearing2.bmp" };
 const int TEXTURENUM = 3;
 
 AUX_RGBImageRec* LoadBMP(const char* Filename) {
