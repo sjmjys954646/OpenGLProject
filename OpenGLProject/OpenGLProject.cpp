@@ -17,7 +17,7 @@
 using namespace std;
 using namespace glm;
 static float ang = 0.0, ratio;
-static float x = 0.0f, y = 1.75f , z = 5.0f;
+static float x = 0.0f, y = 1.75f - 50.0f , z = 5.0f;
 static float lx = 0.0f, ly = 0.0f, lz = 1.0f;
 
 GLfloat dx = 0.2;
@@ -277,12 +277,12 @@ void drawBokdoWall(float leftX, float midZ, bool garosero)
 
 void drawPicture(float leftX, float midZ, bool garosero, int pictureNum)
 {
-
 	leftX = leftX - 1.2f;
 	if (garosero == 0)
 	{
 		glBindTexture(GL_TEXTURE_2D, g_textureID);
 		glBegin(GL_QUADS);
+		glColor3f(1.0f, 1.0f, 1.0f);
 		glTexCoord2f(0, 0); glVertex3f(leftX, -49.0f, midZ);
 		glTexCoord2f(0, 1); glVertex3f(leftX, -45.8f, midZ);
 		glTexCoord2f(1, 1); glVertex3f(leftX + 2.4f, -45.8f, midZ);
@@ -294,6 +294,7 @@ void drawPicture(float leftX, float midZ, bool garosero, int pictureNum)
 	{
 		glBindTexture(GL_TEXTURE_2D, g_textureID);
 		glBegin(GL_QUADS);
+		glColor3f(1.0f, 1.0f, 1.0f);
 		glTexCoord2f(0, 0);  glVertex3f(leftX, -49.0f, midZ);
 		glTexCoord2f(0, 1); glVertex3f(leftX, -45.8f, midZ);
 		glTexCoord2f(1, 1); glVertex3f(leftX, -45.8f, midZ + 2.4f);
@@ -356,7 +357,7 @@ void drawGallary()
 	drawFullWall(-20.0f - 60.0f, 0.0f, 1);
 	drawFullWall(-20.0f - 60.0f, 0.0f, 0);
 	drawFullWall(-20.0f - 60.0f, 40.0f, 0);
-	drawPicture(-79.5f, 20.0f, 1, 0);
+	drawPicture(-78.5f, 20.0f, 1, 0);
 	//미술관 땅2
 	drawFloor(60.0f, 20.0f, 20.0f);
 	drawWall(-20.0f + 60.0f, 0.0f, 1);
@@ -457,7 +458,7 @@ void renderScene(void) {
 	glPushMatrix();
 	glLoadIdentity();
 	glTranslatef(x, y, z + 2);
-	addMob(vec3(x,y,z+2),0.5);
+	//addMob(vec3(x,y,z+2),0.5);
 	glPopMatrix();
 	//DrawCubeTex();
 
@@ -530,21 +531,18 @@ void AddContactForce()
 {
 	for (int i = 0; i < mobs.size(); i++)
 	{
-		for (int j = i + 1; j < mobs.size(); j++)
-		{
-			vec3 dis = mobs[i].p - Player.p;       //dis=반지름 사이
+		vec3 dis = mobs[i].p - Player.p;       //dis=반지름 사이
 			//compute length
-			float L = length(dis);                    //L= 반지름 사이의 거리
+		float L = length(dis);                    //L= 반지름 사이의 거리
 
-			dis = normalize(dis);
-			if (L <= mobs[i].size)          //L이 반지름 사이의 거리보다 작다? => 두 공이 겹쳤다
-			{
-				die = true;
-				//compute and add force
-				/*vec3 force = stiff * ((balls[i].r + balls[j].r) - L) * dis;
-				balls[i].force += force;
-				balls[j].force -= force;*/
-			}
+		dis = normalize(dis);
+		if (L <= mobs[i].size)          //L이 반지름 사이의 거리보다 작다? => 두 공이 겹쳤다
+		{
+			die = true;
+			//compute and add force
+			/*vec3 force = stiff * ((balls[i].r + balls[j].r) - L) * dis;
+			balls[i].force += force;
+			balls[j].force -= force;*/
 		}
 	}
 }
