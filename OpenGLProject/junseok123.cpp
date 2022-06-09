@@ -21,7 +21,7 @@
 using namespace std;
 using namespace glm;
 static float ang = 0.0f, ratio;
-static float x = 0.0f, y = 1.75f, z = 0.0f;
+static float px = 0.0f, py = 1.75f, pz = 0.0f;
 static float lx = 0.0f, ly = 0.0f, lz = 1.0f;
 static POINT    ptLastMousePosit;
 static POINT    ptCurrentMousePosit;
@@ -85,9 +85,9 @@ void rst()
 {
 	die = false;
 	clear = false;
-	x = 0.0f;
-	y = 1.75f;
-	z = 0.0f;
+	px = 0.0f;
+	py = 1.75f;
+	pz = 0.0f;
 	ang = 0.0f;
 	lx = 0.0f, ly = 0.0f, lz = 1.0f;
 }
@@ -100,7 +100,7 @@ void newSpeed(float dest[3]) {
 	az = (2.0 * ((GLfloat)rand()) / ((GLfloat)RAND_MAX)) - 1.0;
 
 	if (wantNormalize) {
-		len = sqrt(x * x + y * y + z * z);
+		len = sqrt(ax * ax + ay * ay + az * az);
 
 		if (len) {
 			ax = ax / len;
@@ -154,7 +154,7 @@ void newExplosion(void) {
 
 GLuint	texture[30];
 GLuint g_textureID = -1;
-const string textureName[30] = { "Data/monalisa.bmp","Data/gentleman.bmp","Data/girlwithearing2.bmp" };
+const string textureName[30] = { "Data/monalisa.bmp","Data/gentleman.bmp","Data/girlwithearing.bmp" };
 const int TEXTURENUM = 3;
 
 AUX_RGBImageRec* LoadBMP(const char* Filename) {
@@ -189,7 +189,7 @@ void changeSize(int w, int h)
 	gluPerspective(45, ratio, 1, 1000);
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
-	gluLookAt(x, y, z, x + lx, y + ly, z + lz, 0.0f, 1.0f, 0.0f);
+	gluLookAt(px, py, pz, px + lx, py + ly, pz + lz, 0.0f, 1.0f, 0.0f);
 }
 
 void LoadGLTextures() {
@@ -240,25 +240,106 @@ void MyTimer(int value) {
 	glutPostRedisplay();
 	crash();
 	//printf("%f %f %d %f\n", ptLastMousePosit.x, ptLastMousePosit.y, ptCurrentMousePosit.x, ptCurrentMousePosit.y);
-
+	x1 += dx;
+	if (x1 > 4 || x1 < -4) {
+		dx *= -1;
+	}
+	else if (x1 > 11 || x1 < -4) {
+		dx *= -1;
+	}
 	glutTimerFunc(40, MyTimer, 1);
 	if (die == true)
 	{
 
 		//x = 300.0f;
-		z = 500.0f;
+		pz = 500.0f;
 		//newExplosion();
 
 	}
-	if (die == false && y == 1.75f && z >= 29.f)
+	if (die == false && py == 1.75f && pz >= 29.f)
 	{
-		x = 0.0f;
-		y = -48.25f;
-		z = 0.0f;
+		px = 0.0f;
+		py = -48.25f;
+		pz = 0.0f;
 	}
 
 }
+void drawtrap() {////////////////////////////
+	glColor3f(1.0f, 0.0f, 0.0f);
+	glPushMatrix();
+	glTranslatef(0.0f + x1, -50.0f, 48.0f);
+	glRotatef(-90, 1, 0, 0);
+	glutSolidCylinder(0.5f, 5.0f, 32, 4);
+	glPopMatrix();
 
+	glPushMatrix();
+	glTranslatef(-26.0f, -50.0f, 20.0f + x1);
+	glRotatef(-90, 1, 0, 0);
+	glutSolidCylinder(0.5f, 5.0f, 32, 4);
+	glPopMatrix();
+
+	glPushMatrix();
+	glTranslatef(28.0f, -50.0f, 20.0f + x1);
+	glRotatef(-90, 1, 0, 0);
+	glutSolidCylinder(0.5f, 5.0f, 32, 4);
+	glPopMatrix();
+
+	//glPushMatrix();
+	//glTranslatef(-10.0f, -45.0f +x1, 14.0f);
+	//glRotatef(90, 1, 0, 0);
+	//glutSolidCone(1.0f, 3.0f, 10, 2);
+	//glPopMatrix();
+
+	glPushMatrix();
+	glBegin(GL_QUADS);
+	glVertex3f(-5.0f, -48.5f + x1, 90.0f);
+	glVertex3f(-5.0f, -49.0f + x1, 90.0f);
+	glVertex3f(5.0f, -49.0f + x1, 90.0f);
+	glVertex3f(5.0f, -48.5f + x1, 90.0f);
+
+	glVertex3f(5.0f, -48.5f + x1, 100.0f);
+	glVertex3f(5.0f, -49.0f + x1, 100.0f);
+	glVertex3f(5.0f, -49.0f + x1, 90.0f);
+	glVertex3f(5.0f, -48.5f + x1, 90.0f);
+
+	glVertex3f(-5.0f, -48.5f + x1, 100.0f);
+	glVertex3f(-5.0f, -49.0f + x1, 100.0f);
+	glVertex3f(-5.0f, -49.0f + x1, 90.0f);
+	glVertex3f(-5.0f, -48.5f + x1, 90.0f);
+
+	glVertex3f(70.0f, -48.5f + x1, 25.0f);
+	glVertex3f(70.0f, -49.0f + x1, 25.0f);
+	glVertex3f(70.0f, -49.0f + x1, 15.0f);
+	glVertex3f(70.0f, -48.5f + x1, 15.0f);
+
+	glVertex3f(80.0f, -48.5f + x1, 15.0f);
+	glVertex3f(80.0f, -49.0f + x1, 15.0f);
+	glVertex3f(70.0f, -49.0f + x1, 15.0f);
+	glVertex3f(70.0f, -48.5f + x1, 15.0f);
+
+	glVertex3f(80.0f, -48.5f + x1, 25.0f);
+	glVertex3f(80.0f, -49.0f + x1, 25.0f);
+	glVertex3f(70.0f, -49.0f + x1, 25.0f);
+	glVertex3f(70.0f, -48.5f + x1, 25.0f);
+
+	glVertex3f(-70.0f, -48.5f + x1, 25.0f);
+	glVertex3f(-70.0f, -49.0f + x1, 25.0f);
+	glVertex3f(-70.0f, -49.0f + x1, 15.0f);
+	glVertex3f(-70.0f, -48.5f + x1, 15.0f);
+
+	glVertex3f(-80.0f, -48.5f + x1, 15.0f);
+	glVertex3f(-80.0f, -49.0f + x1, 15.0f);
+	glVertex3f(-70.0f, -49.0f + x1, 15.0f);
+	glVertex3f(-70.0f, -48.5f + x1, 15.0f);
+
+	glVertex3f(-80.0f, -48.5f + x1, 25.0f);
+	glVertex3f(-80.0f, -49.0f + x1, 25.0f);
+	glVertex3f(-70.0f, -49.0f + x1, 25.0f);
+	glVertex3f(-70.0f, -48.5f + x1, 25.0f);
+	glPopMatrix();
+
+	glEnd();
+}
 
 void drawStartPoint()
 {
@@ -733,7 +814,7 @@ void renderScene(void) {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	drawMap();
-
+	drawtrap();
 	glPushMatrix();
 	{
 		glTranslatef(0.0f, 1.0f, 10.0f);
@@ -743,7 +824,7 @@ void renderScene(void) {
 
 
 
-	sprintf(coor, "x : %f y : %f z : %f", x, y, z);
+	sprintf(coor, "x : %f y : %f z : %f", px, py, pz);
 	sprintf(name, "Picture");
 	sprintf(message, "You DIED");
 	sprintf(diemessage, "Press 'r' to restart");
@@ -810,17 +891,17 @@ void orientMe(float ang) {
 	lx = sin(ang);
 	lz = -cos(ang);
 	glLoadIdentity();
-	gluLookAt(x, y, z, x + lx, y + ly, z + lz, 0.0f, 1.0f, 0.0f);
-	sprintf(coor, "x : %f y : %f z : %f", x, y, z);
+	gluLookAt(px, py, pz, px + lx, py + ly, pz + lz, 0.0f, 1.0f, 0.0f);
+	sprintf(coor, "x : %f y : %f z : %f", px, py, pz);
 }
 
 
 void moveMeFlat(int i) {
-	x = x + i * (lx) * 0.2;
-	z = z + i * (lz) * 0.2;
+	px = px + i * (lx) * 0.2;
+	pz = pz + i * (lz) * 0.2;
 	glLoadIdentity();
-	gluLookAt(x, y, z, x + lx, y + ly, z + lz, 0.0f, 1.0f, 0.0f);
-	sprintf(coor, "x : %f y : %f z : %f", x, y, z);
+	gluLookAt(px, py, pz, px + lx, py + ly, pz + lz, 0.0f, 1.0f, 0.0f);
+	sprintf(coor, "x : %f y : %f z : %f", px, py, pz);
 }
 
 void processNormalKeys(unsigned char key, int x, int y) {
@@ -860,7 +941,7 @@ void crash()
 
 	for (int i = 0; i < mobs.size(); i++)
 	{
-		vec3 p = vec3(x, y, z);
+		vec3 p = vec3(px, py, pz);
 		vec3 dis = mobs[0].p - p;       //dis=반지름 사이
 		//compute length
 		float L = length(dis);                    //L= 반지름 사이의 거리
@@ -971,7 +1052,7 @@ int main(int argc, char** argv)
 	glutInitDisplayMode(GLUT_DEPTH | GLUT_DOUBLE | GLUT_RGBA);
 	glutInitWindowPosition(100, 100);
 	glutInitWindowSize(900, 700);
-	glutCreateWindow("project");
+	glutCreateWindow("yunsoo");
 	glInit();
 	glutKeyboardFunc(inputKey);
 
