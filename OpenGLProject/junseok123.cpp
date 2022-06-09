@@ -14,30 +14,41 @@
 #include <string>
 #include <vector>
 #include "bitmap_fonts.h"
-#define NUM_PARTICLES    10000          /* Number of particles  */
-#define NUM_DEBRIS       1000           /* Number of debris     */
+#include <iostream>
+#define NUM_PARTICLES    10000          
+#define NUM_DEBRIS       1000           
 
 using namespace std;
 using namespace glm;
-static float ang = 0.0, ratio;
+static float ang = 0.0f, ratio;
 static float x = 0.0f, y = 1.75f, z = 0.0f;
 static float lx = 0.0f, ly = 0.0f, lz = 1.0f;
+static POINT    ptLastMousePosit;
+static POINT    ptCurrentMousePosit;
+static bool        bMousing;
 
+
+float g_fDistance = -5.0f;
+float g_fSpinX = 0.0f;
+float g_fSpinY = 0.0f;
 GLfloat dx = 0.2;
 GLfloat x1;
+
 static char coor[255];
 static char message[255];
+static char diemessage[255];
+static char name[255];
 int    g_nWindowWidth;
 int    g_nWindowHeight;
 void DrawCube();
 void addMob(vec3 position, float size);
-void Add_dist();
+void crash();
 void DrawCubeTex();
-void mobinit();
 
-GLboolean die = false;
-GLboolean clear = false;
 
+GLboolean die = false;    //사망 처리
+GLboolean clear = false;  //클리어 처리
+GLboolean text = true;   // 좌표 및 텍스트 on/off
 
 struct Mob {
 	vec3 p; //position
@@ -70,28 +81,39 @@ debrisData		debris[NUM_DEBRIS];
 int             fuel = 0;                /* "fuel" of the explosion */
 int				wantNormalize = 0;   /* Speed vector normalization flag */
 
-void newSpeed(float dest[3]) {
-	float x, y, z, len;
+void rst()
+{
+	die = false;
+	clear = false;
+	x = 0.0f;
+	y = 1.75f;
+	z = 0.0f;
+	ang = 0.0f;
+	lx = 0.0f, ly = 0.0f, lz = 1.0f;
+}
 
-	x = (2.0 * ((GLfloat)rand()) / ((GLfloat)RAND_MAX)) - 1.0;
-	y = (2.0 * ((GLfloat)rand()) / ((GLfloat)RAND_MAX)) - 1.0;
-	z = (2.0 * ((GLfloat)rand()) / ((GLfloat)RAND_MAX)) - 1.0;
+void newSpeed(float dest[3]) {
+	float ax, ay, az, len;
+
+	ax = (2.0 * ((GLfloat)rand()) / ((GLfloat)RAND_MAX)) - 1.0;
+	ay = (2.0 * ((GLfloat)rand()) / ((GLfloat)RAND_MAX)) - 1.0;
+	az = (2.0 * ((GLfloat)rand()) / ((GLfloat)RAND_MAX)) - 1.0;
 
 	if (wantNormalize) {
 		len = sqrt(x * x + y * y + z * z);
 
 		if (len) {
-			x = x / len;
-			y = y / len;
-			z = z / len;
+			ax = ax / len;
+			ay = ay / len;
+			az = az / len;
 		}
 	}
 
-	dest[0] = x;
-	dest[1] = y;
-	dest[2] = z;
+	dest[0] = ax;
+	dest[1] = ay;
+	dest[2] = az;
 }
-GLboolean text = false;
+
 //폭발시 파티클 및 파편 생성
 void newExplosion(void) {
 	for (int i = 0; i < NUM_PARTICLES; i++) {
@@ -132,6 +154,8 @@ void newExplosion(void) {
 
 GLuint	texture[30];
 GLuint g_textureID = -1;
+const string textureName[30] = { "Data/monalisa.bmp","Data/gentleman.bmp","Data/girlwithearing2.bmp" };
+const int TEXTURENUM = 3;
 
 AUX_RGBImageRec* LoadBMP(const char* Filename) {
 	FILE* File = NULL;
@@ -168,27 +192,40 @@ void changeSize(int w, int h)
 	gluLookAt(x, y, z, x + lx, y + ly, z + lz, 0.0f, 1.0f, 0.0f);
 }
 
-void loadTexture(void) {
-	AUX_RGBImageRec* pTextureImage = auxDIBImageLoad("Data/monalisa.bmp");
+void LoadGLTextures() {
+	AUX_RGBImageRec* TextureImage[30];
+	memset(TextureImage, 0, sizeof(void*) * 30);
 
-	if (pTextureImage != NULL) {
-		glGenTextures(1, &g_textureID);
+	for (int i = 0; i < TEXTURENUM; i++)
+	{
+		char cstr[50];
+		strcpy(cstr, textureName[i].c_str());
+		for (int c = 0; c < strlen(cstr); c++)
+		{
+			printf("%c", cstr[c]);
+		}
+		printf("\n");
 
-		glBindTexture(GL_TEXTURE_2D, g_textureID);
+		if (TextureImage[i] = LoadBMP(cstr)) {
+			glGenTextures(1, &texture[i]);
 
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			glBindTexture(GL_TEXTURE_2D, texture[i]);
 
-		glTexImage2D(GL_TEXTURE_2D, 0, 3, pTextureImage->sizeX, pTextureImage->sizeY, 0,
-			GL_RGB, GL_UNSIGNED_BYTE, pTextureImage->data);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+			glTexImage2D(GL_TEXTURE_2D, 0, 3, TextureImage[i]->sizeX, TextureImage[i]->sizeY, 0,
+				GL_RGB, GL_UNSIGNED_BYTE, TextureImage[i]->data);
+		}
+
+		if (TextureImage[i]) {
+			if (TextureImage[i]->data) {
+				free(TextureImage[i]->data);
+			}
+			free(TextureImage[i]);
+		}
 	}
 
-	if (pTextureImage) {
-		if (pTextureImage->data)
-			free(pTextureImage->data);
-
-		free(pTextureImage);
-	}
 }
 
 
@@ -197,20 +234,28 @@ void drawCircle() {
 	glTranslatef(0.0f, 5.0f, 0.0f);
 	glutSolidSphere(0.75f, 20, 20);
 }
-GLboolean test = false;
+
 void MyTimer(int value) {
-	
+
 	glutPostRedisplay();
-	Add_dist();
-	if (die == false)
-		glutTimerFunc(40, MyTimer, 1);
-	if(die==true)
+	crash();
+	//printf("%f %f %d %f\n", ptLastMousePosit.x, ptLastMousePosit.y, ptCurrentMousePosit.x, ptCurrentMousePosit.y);
+
+	glutTimerFunc(40, MyTimer, 1);
+	if (die == true)
 	{
-		x = 300;
-		z = 300;
-		newExplosion();
+
+		//x = 300.0f;
+		z = 500.0f;
+		//newExplosion();
+
 	}
-	
+	if (die == false && y == 1.75f && z >= 29.f)
+	{
+		x = 0.0f;
+		y = -48.25f;
+		z = 0.0f;
+	}
 
 }
 
@@ -327,8 +372,9 @@ void drawPicture(float leftX, float midZ, bool garosero, int pictureNum)
 	leftX = leftX - 1.2f;
 	if (garosero == 0)
 	{
-		glBindTexture(GL_TEXTURE_2D, g_textureID);
+		glBindTexture(GL_TEXTURE_2D, texture[pictureNum]);
 		glBegin(GL_QUADS);
+		glColor3f(1.0f, 1.0f, 1.0f);
 		glTexCoord2f(0, 0); glVertex3f(leftX, -49.0f, midZ);
 		glTexCoord2f(0, 1); glVertex3f(leftX, -45.8f, midZ);
 		glTexCoord2f(1, 1); glVertex3f(leftX + 2.4f, -45.8f, midZ);
@@ -338,8 +384,9 @@ void drawPicture(float leftX, float midZ, bool garosero, int pictureNum)
 	}
 	else
 	{
-		glBindTexture(GL_TEXTURE_2D, g_textureID);
+		glBindTexture(GL_TEXTURE_2D, texture[pictureNum]);
 		glBegin(GL_QUADS);
+		glColor3f(1.0f, 1.0f, 1.0f);
 		glTexCoord2f(0, 0);  glVertex3f(leftX, -49.0f, midZ);
 		glTexCoord2f(0, 1); glVertex3f(leftX, -45.8f, midZ);
 		glTexCoord2f(1, 1); glVertex3f(leftX, -45.8f, midZ + 2.4f);
@@ -349,9 +396,58 @@ void drawPicture(float leftX, float midZ, bool garosero, int pictureNum)
 	}
 }
 
+void drawPannelGround(float posX, float posZ, float angle)
+{
+	glPushMatrix();
+	{
+		glTranslatef(posX, 0.0f, posZ);
+		glRotatef(angle, 0, 1, 0);
+	}
+	glBegin(GL_QUADS);
+	glColor3f(1.0f, 1.0f, 1.0f);
+	glVertex3f(-0.1f, -50.0f, 0.0f);
+	glVertex3f(-0.1f, -49.0f, 0.0f);
+	glVertex3f(0.1f, -49.0f, 0.0f);
+	glVertex3f(0.1f, -50.0f, 0.0f);
+	glEnd();
+	glBegin(GL_QUADS);
+	glColor3f(1.0f, 1.0f, 1.0f);
+	glVertex3f(-0.8f, -49.0f, 0.0f);
+	glVertex3f(-0.8f, -48.2f, 0.0f);
+	glVertex3f(0.8f, -48.2f, 0.0f);
+	glVertex3f(0.8f, -49.0f, 0.0f);
+	glEnd();
+	glPopMatrix();
+}
+
+void drawPannel(float leftX, float midZ, bool garosero)
+{
+	leftX = leftX - 1.2f;
+	if (garosero == 0)
+	{
+		glBegin(GL_QUADS);
+		glColor3f(1.0f, 1.0f, 1.0f);
+		glTexCoord2f(0, 0); glVertex3f(leftX, -48.0f, midZ);
+		glTexCoord2f(0, 1); glVertex3f(leftX, -47.2f, midZ);
+		glTexCoord2f(1, 1); glVertex3f(leftX + 1.2f, -47.2f, midZ);
+		glTexCoord2f(1, 0); glVertex3f(leftX + 1.2f, -48.0f, midZ);
+		glEnd();
+
+	}
+	else
+	{
+		glBegin(GL_QUADS);
+		glColor3f(1.0f, 1.0f, 1.0f);
+		glTexCoord2f(0, 0);  glVertex3f(leftX, -48.0f, midZ);
+		glTexCoord2f(0, 1); glVertex3f(leftX, -47.2f, midZ);
+		glTexCoord2f(1, 1); glVertex3f(leftX, -47.2f, midZ + 1.2f);
+		glTexCoord2f(1, 0); glVertex3f(leftX, -48.0f, midZ + 1.2f);
+		glEnd();
+	}
+}
+
 void drawGallary()
 {
-	//문
 	glBegin(GL_QUADS);
 	glColor3f(0.4f, 0.2f, 0.2f);
 	glVertex3f(-5.0f, -50.0f, -20.0f);
@@ -386,6 +482,8 @@ void drawGallary()
 	glEnd();
 
 	//미술관 땅
+	glInitNames();
+
 	drawFloor(0.0f, 20.0f, 20.0f);
 	drawWall(-20.0f, 0.0f, 0);
 	drawWall(5.0f, 0.0f, 0);
@@ -395,30 +493,45 @@ void drawGallary()
 	drawWall(-20.0f, 25.0f, 1);
 	drawWall(20.0f, 0.0f, 1);
 	drawWall(20.0f, 25.0f, 1);
-	//미술관 땅1
+	drawPannelGround(10.0f, 28.0f, 30.0f);
+	drawPannelGround(-10.0f, 30.0f, -30.0f);
+	//미술관 땅1(오른쪽방 gentleman)
 	drawFloor(-60.0f, 20.0f, 20.0f);
 	drawWall(20.0f - 60.0f, 0.0f, 1);
 	drawWall(20.0f - 60.0f, 25.0f, 1);
 	drawFullWall(-20.0f - 60.0f, 0.0f, 1);
 	drawFullWall(-20.0f - 60.0f, 0.0f, 0);
 	drawFullWall(-20.0f - 60.0f, 40.0f, 0);
-	drawPicture(-79.5f, 20.0f, 1, 0);
-	//미술관 땅2
+	glPushName(100);
+	drawPicture(-78.5f, 20.0f, 1, 1);
+	glPopName();
+	drawPannel(-78.5f, 20.0f - 1.6f, 1);
+	drawPannelGround(-50.0f, 15.0f, 45.0f);
+	//미술관 땅2 (왼쪽 monalisa)
 	drawFloor(60.0f, 20.0f, 20.0f);
 	drawWall(-20.0f + 60.0f, 0.0f, 1);
 	drawWall(-20.0f + 60.0f, 25.0f, 1);
 	drawFullWall(20.0f + 60.0f, 0.0f, 1);
 	drawFullWall(-20.0f + 60.0f, 0.0f, 0);
 	drawFullWall(-20.0f + 60.0f, 40.0f, 0);
+	glPushName(101);
 	drawPicture(79.5f, 20.0f, 1, 0);
-	//미술관 땅3
+	glPopName();
+	drawPannel(78.5f, 20.0f + 2.8f, 1);
+	drawPannelGround(50.0f, 25.0f, 45.0f);
+	//미술관 땅3(정면방 girl)
 	drawFloor(0, 80.0f, 20.0f);
 	drawWall(-20.0f, 60.0f, 0);
 	drawWall(5.0f, 60.0f, 0);
 	drawFullWall(20.0f, 60.0f, 1);
 	drawFullWall(-20.0f, 100.0f, 0);
 	drawFullWall(-20.0f, 60.0f, 1);
-	drawPicture(0.0f, 99.5f, 0, 0);
+	glPushName(102);
+	drawPicture(0.0f, 99.5f, 0, 2);
+	glPopName();
+	drawPannel(0.0f - 1.6f, 99.5f, 0);
+	glEnd();
+
 
 	//미술관 복도1
 	glBegin(GL_QUADS);
@@ -453,48 +566,205 @@ void drawGallary()
 	drawBokdoWall(-5.0f, 40.0f, 1);
 	drawBokdoWall(5.0f, 40.0f, 1);
 }
+void drawStructure()
+{
+	//조형물
+	//메인방
+	glColor3f(1.0f, 0.0f, 0.0f);
+	glPushMatrix();
+	{
+		glTranslatef(-15.0f, 1.75f - 50.0f, 35.0f);
+		glutWireDodecahedron();
+	}
+	glPopMatrix();
+	glPushMatrix();
+	{
+		glTranslatef(15.0f, 5.0f - 50.0f, 35.0f);
+		glRotatef(90, 1, 0, 0);
+		glutSolidCone(2.0f, 5.0f, 32, 4);
+	}
+	glPopMatrix();
+	//2번방
+	glPushMatrix();
+	{
+		glTranslatef(-10.0f, -50.0f, 95.0f);
+		glRotatef(-90, 1, 0, 0);
+		glutSolidCylinder(0.5f, 5.0f, 32, 4);
+	}
+	glPopMatrix();
+	glPushMatrix();
+	{
+		glTranslatef(-10.0f, -50.0f, 70.0f);
+		glRotatef(-90, 1, 0, 0);
+		glutSolidCylinder(0.5f, 5.0f, 32, 4);
+	}
+	glPopMatrix();
+	glPushMatrix();
+	{
+		glTranslatef(10.0f, -50.0f, 95.0f);
+		glRotatef(-90, 1, 0, 0);
+		glutSolidCylinder(0.5f, 5.0f, 32, 4);
+	}
+	glPopMatrix();
+	glPushMatrix();
+	{
+		glTranslatef(10.0f, -50.0f, 70.0f);
+		glRotatef(-90, 1, 0, 0);
+		glutSolidCylinder(0.5f, 5.0f, 32, 4);
+	}
+	glPopMatrix();
+	//1번방
+	glPushMatrix();
+	{
+		glDisable(GL_TEXTURE_2D);
+		glColor3f(0.0f, 0.0f, 0.0f);
+		glTranslatef(-60.0f + 10.0f, -50.0f + 2.0f, 20.0f - 10.0f);
+		glRotatef(-90, 0, 1, 0);
+		glutSolidTeapot(2);
+		glEnable(GL_TEXTURE_2D);
+	}
+	glPopMatrix();
+	//3번방
+	glPushMatrix();
+	{
+		glDisable(GL_TEXTURE_2D);
+		glColor3f(0.0f, 0.0f, 0.0f);
+		glTranslatef(60.0f - 10.0f, -50.0f + 2.0f, 20.0f + 10.0f);
+		glutSolidSphere(2, 42, 10);
+		glEnable(GL_TEXTURE_2D);
+	}
+	glPopMatrix();
 
+}
 void drawMap()
 {
+	//천장
+	glBegin(GL_QUADS);
+	glColor3f(0.8f, 0.2f, 0.9f);
+	glVertex3f(-120.0f, -45.0f, -20.0f);
+	glVertex3f(120.0f, -45.0f, -20.0f);
+	glVertex3f(120.0f, -45.0f, 120.0f);
+	glVertex3f(-120.0f, -45.0f, 120.0f);
+	glEnd();
 	drawStartPoint();
 	drawGallary();
+	drawStructure();
 }
-void DrawCube(vec3 p)
+
+
+void SetTextMessage(GLuint index[64])
 {
-	glutSolidCube(1);
-	addMob(p, 0.2);
+	switch (index[3]) {
+
+	case 100: sprintf_s(name, "gentleman"); break;
+	case 101: sprintf_s(name, "girl"); break;
+	case 102: sprintf_s(name, "monalisa"); break;
+
+
+		//default: sprintf_s(name, "None"); break;
+	}
+}
+void SelectObjects(GLint x, GLint y) {
+	GLuint selectBuff[64];
+	GLint hits, viewport[4];
+
+	glSelectBuffer(64, selectBuff);
+	glGetIntegerv(GL_VIEWPORT, viewport);
+	glMatrixMode(GL_PROJECTION);
+	glPushMatrix();
+	glRenderMode(GL_SELECT);
+	glLoadIdentity();
+	gluPickMatrix(x, viewport[3] - y, 2, 2, viewport);
+	printf("%f %f\n", x, y);
+	gluPerspective(45.0f, (GLfloat)g_nWindowWidth / (GLfloat)g_nWindowHeight, 0.1f, 100.0f);
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+
+
+	hits = glRenderMode(GL_RENDER);
+	if (hits > 0)
+	{
+		//ProcessSelect(selectBuff);
+		SetTextMessage(selectBuff);
+	}
+
+	glMatrixMode(GL_PROJECTION);
+	glPopMatrix();
+	glMatrixMode(GL_MODELVIEW);
+}
+void MyMouse(int button, int state, int x, int y) {
+	switch (button) {
+	case GLUT_LEFT_BUTTON:
+		if (state == GLUT_DOWN) {
+			ptLastMousePosit.x = x; ptCurrentMousePosit.x = x;
+			ptLastMousePosit.y = y; ptCurrentMousePosit.y = y;
+			SelectObjects(ptCurrentMousePosit.x, ptCurrentMousePosit.y);
+			bMousing = true;
+		}
+		else
+			bMousing = false;
+		break;
+	case GLUT_MIDDLE_BUTTON:
+	case GLUT_RIGHT_BUTTON:
+		break;
+	default:
+		break;
+	}
+
+	glutPostRedisplay();
+}
+
+void MyMotion(int x, int y) {
+	ptCurrentMousePosit.x = x;
+	ptCurrentMousePosit.y = y;
+
+	if (bMousing)
+	{
+		g_fSpinX -= (ptCurrentMousePosit.x - ptLastMousePosit.x);
+		g_fSpinY -= (ptCurrentMousePosit.y - ptLastMousePosit.y);
+	}
+
+	ptLastMousePosit.x = ptCurrentMousePosit.x;
+	ptLastMousePosit.y = ptCurrentMousePosit.y;
+
+	glutPostRedisplay();
 }
 void renderScene(void) {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	drawMap();
-	//DrawCubeTex();
-	//DrawCube(vec3(x, y, z + 2), 0.2);
 
 	glPushMatrix();
 	{
 		glTranslatef(0.0f, 1.0f, 10.0f);
-		DrawCube(vec3(x, y, z + 10));
-		
+		//addMob(vec3(x, y, z + 10),0.2);
 	}
 	glPopMatrix();
-	
-	glEnd();
+
+
 
 	sprintf(coor, "x : %f y : %f z : %f", x, y, z);
+	sprintf(name, "Picture");
 	sprintf(message, "You DIED");
+	sprintf(diemessage, "Press 'r' to restart");
 	beginRenderText(g_nWindowWidth, g_nWindowHeight);
 	{
 		glColor3f(1.f, 1.f, 1.0f);
 		int u = (1.f - 0.75f) / 4.f * g_nWindowWidth;
 		int v = (1.f - (-1.75f)) / 4.f * g_nWindowHeight;
-		if (die == false&&text==true)
+		if (die == false && text == true)
+		{
 			renderText(g_nWindowWidth - 0.95, g_nWindowHeight + 0.9, BITMAP_FONT_TYPE_HELVETICA_12, coor);
-		if(die==true)
-			renderText(g_nWindowWidth - 0.08, g_nWindowHeight, BITMAP_FONT_TYPE_HELVETICA_18, message);
+			renderText(g_nWindowWidth - 0.95, g_nWindowHeight + 0.8, BITMAP_FONT_TYPE_HELVETICA_12, name);
+		}
+		if (die == true)
+		{
+			renderText(g_nWindowWidth - 0.08, g_nWindowHeight + 0.05, BITMAP_FONT_TYPE_HELVETICA_18, message);
+			renderText(g_nWindowWidth - 0.15, g_nWindowHeight - 0.05, BITMAP_FONT_TYPE_HELVETICA_18, diemessage);
+		}
 	}
 	endRenderText();
-	
+
 
 	if (fuel > 0) {
 		glPushMatrix();
@@ -574,20 +844,20 @@ void addMob(vec3 position, float size)
 	newmob.p.z = _pos.z;
 
 	newmob.size = _size;
-
+	glutSolidCube(size);
 	/*mat4 trans = translate(mat4(1), vec3(position.x, position.y, position.z));
 	vec4 tempP = vec4(newmob.p, 0);
 	newmob.p = tempP * trans;*/
 
-	
+
 	//glutSolidCube(size);
-	
+
 	mobs.push_back(newmob);
 }
 vector<float> dist;
-void Add_dist()
+void crash()
 {
-	
+
 	for (int i = 0; i < mobs.size(); i++)
 	{
 		vec3 p = vec3(x, y, z);
@@ -620,17 +890,21 @@ void inputKey(unsigned char key, int x, int y) {
 		orientMe(ang);
 		break;
 	case 'w':
-		moveMeFlat(1);
+		moveMeFlat(2);
 		break;
 	case 's':
-		moveMeFlat(-1);
+		moveMeFlat(-2);
 		break;
 	case 'k':
-		newExplosion();
+		die = true;
 		break;
 	case 'p':
 		text = !text;
 		break;
+	case 'r':
+		rst();
+		break;
+
 	}
 }
 
@@ -675,9 +949,10 @@ void MyIdle(void) {
 
 void glInit()
 {
-	loadTexture();
+	LoadGLTextures();
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_TEXTURE_2D);
+
 	if (fuel == 0) {
 		glEnable(GL_DEPTH_TEST);
 		glPushMatrix();
@@ -688,17 +963,6 @@ void glInit()
 		glPopMatrix();
 	}
 
-}
-void mobinit()
-{
-	glPushMatrix();
-	{
-		glTranslatef(0.0f, 1.0f, 10.0f);
-		glutSolidCube(1);
-		addMob(vec3(x, y, z + 10), 0.2);
-
-	}
-	glPopMatrix();
 }
 
 int main(int argc, char** argv)
@@ -712,10 +976,13 @@ int main(int argc, char** argv)
 	glutKeyboardFunc(inputKey);
 
 	glutDisplayFunc(renderScene);
+
 	glutIdleFunc(MyIdle);
+
 	glutTimerFunc(40, MyTimer, 1);
 	glutReshapeFunc(changeSize);
-
+	glutMouseFunc(MyMouse);
+	glutMotionFunc(MyMotion);
 	glutMainLoop();
 
 	return(0);
