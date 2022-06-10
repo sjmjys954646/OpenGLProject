@@ -44,12 +44,12 @@ void DrawCube();
 void addMob(vec3 position, float size);
 void crash();
 void DrawCubeTex();
-
+void drawtrap();
 
 GLboolean die = false;    //사망 처리
 GLboolean clear = false;  //클리어 처리
 GLboolean text = true;   // 좌표 및 텍스트 on/off
-
+GLboolean test = false;
 struct Mob {
 	vec3 p; //position
 	vec3 v; //velocity
@@ -241,6 +241,7 @@ void MyTimer(int value) {
 	crash();
 	//printf("%f %f %d %f\n", ptLastMousePosit.x, ptLastMousePosit.y, ptCurrentMousePosit.x, ptCurrentMousePosit.y);
 	x1 += dx;
+	printf("%d\n", test);
 	if (x1 > 4 || x1 < -4) {
 		dx *= -1;
 	}
@@ -814,7 +815,8 @@ void renderScene(void) {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	drawMap();
-	drawtrap();
+	if(test==true)
+		drawtrap();
 	glPushMatrix();
 	{
 		glTranslatef(0.0f, 1.0f, 10.0f);
@@ -985,7 +987,9 @@ void inputKey(unsigned char key, int x, int y) {
 	case 'r':
 		rst();
 		break;
-
+	case 'q':
+		test = true;
+		break;
 	}
 }
 
