@@ -47,6 +47,8 @@ void crash();
 void DrawCubeTex();
 void drawtrap();
 void renderScene(void);
+void drawPicture(float leftX, float midZ, bool garosero, int pictureNum);
+
 GLboolean die = false;    //사망 처리
 GLboolean clear = false;  //클리어 처리
 GLboolean text = true;   // 좌표 및 텍스트 on/off
@@ -160,8 +162,8 @@ void newExplosion(void) {
 
 GLuint	texture[30];
 GLuint g_textureID = -1;
-const string textureName[30] = { "Data/monalisa.bmp","Data/gentleman.bmp","Data/girlwithearing.bmp","Data/girlwithearing2.bmp" };
-const int TEXTURENUM = 4;
+const string textureName[30] = { "Data/monalisa.bmp","Data/gentleman.bmp","Data/girlwithearing.bmp","Data/girlwithearing2.bmp","Data/museum.bmp" ,"Data/brick.bmp"};
+const int TEXTURENUM = 6;
 
 AUX_RGBImageRec* LoadBMP(const char* Filename) {
 	FILE* File = NULL;
@@ -363,23 +365,29 @@ void drawtrap() {////////////////////////////
 void drawStartPoint()
 {
 	//도입길
+	glBindTexture(GL_TEXTURE_2D, texture[5]);
 	glBegin(GL_QUADS);
 	glColor3f(0.9f, 0.9f, 0.9f);
-	glVertex3f(-5.0f, 0.0f, 30.0f);
-	glVertex3f(5.0f, 0.0f, 30.0f);
-	glVertex3f(5.0f, 0.0f, 0.0f);
-	glVertex3f(-5.0f, 0.0f, 0.0f);
+	glTexCoord2f(0, 0); glVertex3f(-10.0f, 0.0f, 30.0f);
+	glTexCoord2f(0, 1); glVertex3f(10.0f, 0.0f, 30.0f);
+	glTexCoord2f(1, 1); glVertex3f(10.0f, 0.0f, 0.0f);
+	glTexCoord2f(1, 0); glVertex3f(-10.0f, 0.0f, 0.0f);
 	glEnd();
 
 
 
 	//문
+	glBindTexture(GL_TEXTURE_2D, texture[4]);
 	glBegin(GL_QUADS);
 	glColor3f(0.4f, 0.4f, 0.4f);
-	glVertex3f(-5.0f, 0.0f, 30.0f);
+	glTexCoord2f(0, 0); glVertex3f(-10.0f, -0.0f, 30.0f);
+	glTexCoord2f(0, 1); glVertex3f(10.0f, 0.0f, 30.0f);
+	glTexCoord2f(1, 1); glVertex3f(10.0f, 10.0f, 30.0f);
+	glTexCoord2f(1, 0); glVertex3f(-10.0f, 10.0f, 30.0f);
+	/*glVertex3f(-5.0f, 0.0f, 30.0f);
 	glVertex3f(5.0f, 0.0f, 30.0f);
 	glVertex3f(5.0f, 5.0f, 30.0f);
-	glVertex3f(-5.0f, 5.0f, 30.0f);
+	glVertex3f(-5.0f, 5.0f, 30.0f);*/
 	glEnd();
 }
 
