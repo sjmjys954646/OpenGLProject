@@ -32,7 +32,9 @@ float g_fDistance = -5.0f;
 float g_fSpinX = 0.0f;
 float g_fSpinY = 0.0f;
 GLfloat dx = 0.2;
+GLfloat dx2 = 0.2;
 GLfloat x1;
+GLfloat x2;
 
 static char coor[255];
 static char message[255];
@@ -45,7 +47,7 @@ void addMob(vec3 position, float size);
 void crash();
 void DrawCubeTex();
 
-
+GLboolean trap = false;
 GLboolean die = false;    //사망 처리
 GLboolean clear = false;  //클리어 처리
 GLboolean text = true;   // 좌표 및 텍스트 on/off
@@ -82,7 +84,8 @@ int             fuel = 0;                /* "fuel" of the explosion */
 int            wantNormalize = 0;   /* Speed vector normalization flag */
 
 void rst()
-{
+{   
+    trap = false;
     die = false;
     clear = false;
     px = 0.0f;
@@ -241,12 +244,17 @@ void MyTimer(int value) {
     crash();
     //printf("%f %f %d %f\n", ptLastMousePosit.x, ptLastMousePosit.y, ptCurrentMousePosit.x, ptCurrentMousePosit.y);
     x1 += dx;
-    if (x1 > 4 || x1 < -4) {
+    if (x1 > 4 || x1 < -5) {
         dx *= -1;
     }
     else if (x1 > 11 || x1 < -4) {
         dx *= -1;
     }
+    x2 += dx;
+    if (x2 > 5 || x2 < -5) {
+        dx2 *= -2;
+    }
+
     glutTimerFunc(40, MyTimer, 1);
     if (die == true)
     {
@@ -264,22 +272,42 @@ void MyTimer(int value) {
     }
 
 }
-void drawtrap() {////////////////////////////
+void drawtrap() {
     glColor3f(1.0f, 0.0f, 0.0f);
-    glPushMatrix();
-    glTranslatef(0.0f + x1, -50.0f, 48.0f);
+    glPushMatrix(); //가운데 밖
+    glTranslatef(0.0f + x1, -50.0f, 51.0f);
+    glRotatef(-90, 1, 0, 0);
+    glutSolidCylinder(0.5f, 5.0f, 32, 4);
+    glPopMatrix();  
+    
+    glPushMatrix(); //가운데 안
+    glTranslatef(0.0f + x2, -50.0f, 43.0f);
     glRotatef(-90, 1, 0, 0);
     glutSolidCylinder(0.5f, 5.0f, 32, 4);
     glPopMatrix();
 
-    glPushMatrix();
-    glTranslatef(-26.0f, -50.0f, 20.0f + x1);
+    glPushMatrix();//오른쪽 밖
+    glTranslatef(-23.0f, -50.0f, 20.0f + x1);
     glRotatef(-90, 1, 0, 0);
     glutSolidCylinder(0.5f, 5.0f, 32, 4);
     glPopMatrix();
 
-    glPushMatrix();
-    glTranslatef(28.0f, -50.0f, 20.0f + x1);
+    glPushMatrix(); //왼쪽 안
+    glTranslatef(33.0f, -50.0f, 20.0f + x1);
+    glRotatef(-90, 1, 0, 0);
+    glutSolidCylinder(0.5f, 5.0f, 32, 4);
+    glPopMatrix();
+
+    glPushMatrix(); //왼쪽 밖
+    glTranslatef(23.0f, -50.0f, 20.0f + x2);
+    glRotatef(-90, 1, 0, 0);
+    glutSolidCylinder(0.5f, 5.0f, 32, 4);
+    glPopMatrix();
+
+  
+
+    glPushMatrix(); //오른쪽 안
+    glTranslatef(-33.0f, -50.0f, 20.0f + x1);
     glRotatef(-90, 1, 0, 0);
     glutSolidCylinder(0.5f, 5.0f, 32, 4);
     glPopMatrix();
@@ -292,6 +320,7 @@ void drawtrap() {////////////////////////////
 
     glPushMatrix();
     glBegin(GL_QUADS);
+    //가운데
     glVertex3f(-5.0f, -48.5f + x1, 90.0f);
     glVertex3f(-5.0f, -49.0f + x1, 90.0f);
     glVertex3f(5.0f, -49.0f + x1, 90.0f);
@@ -307,6 +336,7 @@ void drawtrap() {////////////////////////////
     glVertex3f(-5.0f, -49.0f + x1, 90.0f);
     glVertex3f(-5.0f, -48.5f + x1, 90.0f);
 
+    //왼쪽
     glVertex3f(70.0f, -48.5f + x1, 25.0f);
     glVertex3f(70.0f, -49.0f + x1, 25.0f);
     glVertex3f(70.0f, -49.0f + x1, 15.0f);
@@ -322,6 +352,7 @@ void drawtrap() {////////////////////////////
     glVertex3f(70.0f, -49.0f + x1, 25.0f);
     glVertex3f(70.0f, -48.5f + x1, 25.0f);
 
+    //오른쪽
     glVertex3f(-70.0f, -48.5f + x1, 25.0f);
     glVertex3f(-70.0f, -49.0f + x1, 25.0f);
     glVertex3f(-70.0f, -49.0f + x1, 15.0f);
@@ -813,8 +844,12 @@ void MyMotion(int x, int y) {
 void renderScene(void) {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+    if (trap == true) {
+        drawtrap();
+    }
+    
     drawMap();
-    drawtrap();
+    
     glPushMatrix();
     {
         glTranslatef(0.0f, 1.0f, 10.0f);
@@ -984,6 +1019,9 @@ void inputKey(unsigned char key, int x, int y) {
         break;
     case 'r':
         rst();
+        break;
+    case 't':
+        trap = true;
         break;
 
     }
