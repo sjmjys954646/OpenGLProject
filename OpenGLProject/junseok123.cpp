@@ -21,11 +21,13 @@
 using namespace std;
 using namespace glm;
 static float ang = 0.0f, ratio;
-static float px = 0.0f, py = 1.75f, pz = 0.0f;
+static float px = 0.0f, py = 1.75f - 50.0f, pz = 94.0f;
 static float lx = 0.0f, ly = 0.0f, lz = 1.0f;
 static POINT    ptLastMousePosit;
 static POINT    ptCurrentMousePosit;
 static bool        bMousing;
+int screennum = 0, winddir = 45;
+GLfloat windspeed = 0.0005f;
 
 
 float g_fDistance = -5.0f;
@@ -38,6 +40,7 @@ static char coor[255];
 static char message[255];
 static char diemessage[255];
 static char name[255];
+static char clearmessage[255];
 int    g_nWindowWidth;
 int    g_nWindowHeight;
 void DrawCube();
@@ -56,9 +59,70 @@ GLboolean trap = false;
 GLboolean girl = false;
 GLboolean gentleman = false;
 GLboolean monalisa = false;
+struct particle {
+	GLfloat x, y, z;
+	GLfloat r, g, b;
+	GLfloat xd, yd, zd;
+	GLfloat cs;
+} p[1000];
+
+void SetParticle(int i)
+{
+	p[i].xd = -(rand() / 32767.0f - 0.5f) / 200.0f;
+	p[i].zd = 2.f;
+	p[i].yd = -rand() / 32767.0f / 100.0f;
+	p[i].x = 30.f * (rand() / 32767.0f - 0.5f);
+	p[i].y = 4.0f;
+	p[i].z = 30.f * (rand() / 32767.0f - 0.5f);
+	p[i].b = rand() / 32767.0f;
+	p[i].g = p[i].b;
+	p[i].r = p[i].b;
+}
+void rain()
+{
+	glPushMatrix();
+	glTranslatef(0.0f, 0.0f, 4.0f);
+	for (int i = 0; i < 1000; i++) {
+		p[i].x += cos(winddir * .0174532925f) * windspeed;
+		p[i].y += p[i].yd;
+		p[i].z += sin(winddir * .0174532925f) * windspeed;
+		p[i].yd -= rand() / 32767.0f / 100000.0f;
+
+		if (p[i].y <= -0.5f) {
+			SetParticle(i);
+		}
+	}
+
+	for (int i = 0; i < 1000; i++) {
+		float difx = 0.0, dify = 0.0;
+		if (i % 3 == 0) {
+			difx = 0.01;
+			dify = 0.01;
+		}
+		else if (i % 3 == 1) {
+			difx = 0.01;
+			dify = 0.03;
+		}
+		else {
+			difx = 0.01;
+			dify = 0.05;
+		}
+
+		glDisable(GL_TEXTURE_2D);
+		glColor3f(1, 0, 0);
+		glBegin(GL_QUADS);
+		glTexCoord2f(0.0f, 0.0f); glVertex3f(p[i].x - difx, p[i].y - dify, p[i].z);
+		glTexCoord2f(1.0f, 0.0f); glVertex3f(p[i].x, p[i].y - dify, p[i].z);
+		glTexCoord2f(1.0f, 1.0f); glVertex3f(p[i].x, p[i].y, p[i].z);
+		glTexCoord2f(0.0f, 1.0f); glVertex3f(p[i].x - difx, p[i].y, p[i].z);
+		glEnd();
+		glEnable(GL_TEXTURE_2D);
+	}
+	glPopMatrix();
+}
 struct Mob {
 	vec3 p; //position
-	
+
 	vec3 force; //force
 	float size; //size
 	float m; //mass
@@ -99,7 +163,14 @@ void rst()
 	ang = 0.0f;
 	lx = 0.0f, ly = 0.0f, lz = 1.0f;
 }
-
+void clr()
+{
+	px = 0.0f;
+	py = 1.75f;
+	pz = 0.0f;
+	ang = 0.0f;
+	lx = 0.0f, ly = 0.0f, lz = 1.0f;
+}
 void newSpeed(float dest[3]) {
 	float ax, ay, az, len;
 
@@ -162,7 +233,7 @@ void newExplosion(void) {
 
 GLuint	texture[30];
 GLuint g_textureID = -1;
-const string textureName[30] = { "Data/monalisa.bmp","Data/gentleman.bmp","Data/girlwithearing.bmp","Data/girlwithearing2.bmp","Data/museum.bmp" ,"Data/brick.bmp"};
+const string textureName[30] = { "Data/monalisa.bmp","Data/gentleman.bmp","Data/girlwithearing.bmp","Data/girlwithearing2.bmp","Data/museum.bmp" ,"Data/brick.bmp" };
 const int TEXTURENUM = 6;
 
 AUX_RGBImageRec* LoadBMP(const char* Filename) {
@@ -244,16 +315,16 @@ void drawCircle() {
 }
 float testspeed;
 void MyTimer(int value) {
-	testspeed += 2*dx;
+	testspeed += 2 * dx;
 	glutPostRedisplay();
 	crash();
-	//printf("%f %f %d %f\n", ptLastMousePosit.x, ptLastMousePosit.y, ptCurrentMousePosit.x, ptCurrentMousePosit.y);
+
 	x1 += dx;
-	
+
 	if (x1 > 4 || x1 < -4) {
 		dx *= -1;
 	}
-	
+
 	else if (x1 > 11 || x1 < -4)
 	{
 		dx *= -1;
@@ -280,17 +351,26 @@ void MyTimer(int value) {
 		py = -48.25f;
 		pz = 0.0f;
 	}
+	if (girl == true && gentleman == true && monalisa == true)
+	{
+		
+		clear = true;
+	}
+	if (clear == true)
+	{
+		clr();
+	}
 
 }
 void drawtrap() {////////////////////////////
-	glColor3f(1.0f,1.0f, 1.0f);
+	glColor3f(1.0f, 1.0f, 1.0f);
 	glPushMatrix();
 	glTranslatef(0.0f + x1, -50.0f, 48.0f);
 	glRotatef(-90, 1, 0, 0);
 	glutSolidCylinder(0.5f, 5.0f, 32, 4);
 	glPopMatrix();
 	//
-	
+
 	//
 	glColor3f(1.0f, 0.0f, 0.0f);
 	glPushMatrix();
@@ -764,22 +844,25 @@ void SetTextMessage(GLuint index[64])
 {
 	switch (index[3]) {
 
-	case 100: 
-		sprintf(name, "gentleman"); 
+	case 100:
+		sprintf(name, "gentleman");
 		trap = true;
+		gentleman = true;
 		printf("gentleman\n");
 		break;
-	case 101: sprintf(name, "monalisa"); 
+	case 101: sprintf(name, "monalisa");
 		trap = true;
-		printf("monalisa\n"); 
+		monalisa = true;
+		printf("monalisa\n");
 		break;
 	case 102: sprintf(name, "girl");
 		trap = true;
+		girl = true;
 		printf("girl\n");
 		break;
 
 
-		//default: sprintf_s(name, "None"); break;
+	default: sprintf_s(name, "None"); break;
 	}
 }
 void SelectObjects(GLint x, GLint y) {
@@ -793,20 +876,23 @@ void SelectObjects(GLint x, GLint y) {
 	glRenderMode(GL_SELECT);
 	glLoadIdentity();
 	gluPickMatrix(x, viewport[3] - y, 2, 2, viewport);
-	renderScene();
+	
 	//gluPerspective(45.0f, (GLfloat)g_nWindowWidth / (GLfloat)g_nWindowHeight, 0.1f, 100.0f);
 	//gluPerspective(45, ratio, 1, 1000);
 	gluLookAt(px, py, pz, px + lx, py + ly, pz + lz, 0.0f, 1.0f, 0.0f);
-	/*glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();*/
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
 
 	renderScene();
+
 	hits = glRenderMode(GL_RENDER);
 	if (hits > 0)
 	{
 		//ProcessSelect(selectBuff);
 		SetTextMessage(selectBuff);
+
 	}
+
 	glMatrixMode(GL_PROJECTION);
 	glPopMatrix();
 	glMatrixMode(GL_MODELVIEW);
@@ -852,8 +938,10 @@ void renderScene(void) {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	drawMap();
-	if(trap==true)
+	if (trap == true)
 		drawtrap();
+	if (clear == true)
+		rain();
 	glPushMatrix();
 	{
 		glTranslatef(0.0f, 1.0f, 10.0f);
@@ -867,6 +955,7 @@ void renderScene(void) {
 	sprintf(name, "Picture");
 	sprintf(message, "You DIED");
 	sprintf(diemessage, "Press 'r' to restart");
+	sprintf(clearmessage, "CLEAR!!");
 	beginRenderText(g_nWindowWidth, g_nWindowHeight);
 	{
 		glColor3f(1.f, 1.f, 1.0f);
@@ -879,6 +968,10 @@ void renderScene(void) {
 		{
 			renderText(g_nWindowWidth - 0.08, g_nWindowHeight + 0.05, BITMAP_FONT_TYPE_HELVETICA_18, message);
 			renderText(g_nWindowWidth - 0.15, g_nWindowHeight - 0.05, BITMAP_FONT_TYPE_HELVETICA_18, diemessage);
+		}
+		if (clear == true)
+		{
+			renderText(g_nWindowWidth - 0.08, g_nWindowHeight + 0.05, BITMAP_FONT_TYPE_HELVETICA_18, clearmessage);
 		}
 	}
 	endRenderText();
@@ -974,21 +1067,23 @@ void addMob()
 vector<float> dist;
 void crash()
 {
-	for (int i = 0; i < mobs.size(); i++)
+	if (trap == true)
 	{
-		vec3 p = vec3(px, py, pz);
-		vec3 dis = mobs[i].p - p;
-		float L = length(dis);
-		//printf("%f %f %f\n", px, mobs[0].p.x, L);
-		if (L <= 2.0f)
+		for (int i = 0; i < mobs.size(); i++)
 		{
-			die = true;
-			printf("´ê¾Òµû\n");
+			vec3 p = vec3(px, py, pz);
+			vec3 dis = mobs[i].p - p;
+			float L = length(dis);
+			//printf("%f %f %f\n", px, mobs[0].p.x, L);
+			if (L <= 2.0f)
+			{
+				die = true;
+				printf("´ê¾Òµû\n");
+			}
 		}
 	}
-	
 
-	
+
 }
 void inputKey(unsigned char key, int x, int y) {
 
@@ -1007,10 +1102,10 @@ void inputKey(unsigned char key, int x, int y) {
 		orientMe(ang);
 		break;
 	case 'w':
-		moveMeFlat(2);
+		moveMeFlat(4);
 		break;
 	case 's':
-		moveMeFlat(-2);
+		moveMeFlat(-4);
 		break;
 	case 'k':
 		die = true;
@@ -1024,6 +1119,13 @@ void inputKey(unsigned char key, int x, int y) {
 	case 'q':
 		trap = true;
 		break;
+	case 'c':
+		clear = true;
+		break;
+	case't':
+		px = -78.0f;
+		py = -48.25f;
+		pz = 21.4f;
 	}
 }
 
