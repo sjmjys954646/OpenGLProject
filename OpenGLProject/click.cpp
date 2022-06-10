@@ -225,7 +225,7 @@ void SelectObjects(GLint x, GLint y) {
 	glRenderMode(GL_SELECT);
 	glLoadIdentity();
 	gluPickMatrix(x, viewport[3] - y, 2, 2, viewport);
-	printf("%f %f\n", x, y);
+
 	gluPerspective(45.0f, (GLfloat)g_nWindowWidth / (GLfloat)g_nWindowHeight, 0.1f, 100.0f);
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();

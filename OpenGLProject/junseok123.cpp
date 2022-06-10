@@ -21,7 +21,7 @@
 using namespace std;
 using namespace glm;
 static float ang = 0.0f, ratio;
-static float px = 0.0f, py = 1.75f, pz = 0.0f;
+static float px = 0.0f, py = 1.75f-50.0f, pz = 0.0f;
 static float lx = 0.0f, ly = 0.0f, lz = 1.0f;
 static POINT    ptLastMousePosit;
 static POINT    ptCurrentMousePosit;
@@ -41,21 +41,26 @@ static char name[255];
 int    g_nWindowWidth;
 int    g_nWindowHeight;
 void DrawCube();
-void addMob(vec3 position, float size);
+//void addMob(vec3 position, float size);
+void addMob();
 void crash();
 void DrawCubeTex();
 void drawtrap();
-
+void renderScene(void);
 GLboolean die = false;    //사망 처리
 GLboolean clear = false;  //클리어 처리
 GLboolean text = true;   // 좌표 및 텍스트 on/off
-GLboolean test = false;
+GLboolean trap = false;
+GLboolean girl = false;
+GLboolean gentleman = false;
+GLboolean monalisa = false;
 struct Mob {
 	vec3 p; //position
-	vec3 v; //velocity
+	
 	vec3 force; //force
 	float size; //size
 	float m; //mass
+	float v; //velocity
 };
 
 vector<Mob> mobs;
@@ -85,6 +90,7 @@ void rst()
 {
 	die = false;
 	clear = false;
+	trap = false;
 	px = 0.0f;
 	py = 1.75f;
 	pz = 0.0f;
@@ -154,8 +160,8 @@ void newExplosion(void) {
 
 GLuint	texture[30];
 GLuint g_textureID = -1;
-const string textureName[30] = { "Data/monalisa.bmp","Data/gentleman.bmp","Data/girlwithearing.bmp" };
-const int TEXTURENUM = 3;
+const string textureName[30] = { "Data/monalisa.bmp","Data/gentleman.bmp","Data/girlwithearing.bmp","Data/girlwithearing2.bmp" };
+const int TEXTURENUM = 4;
 
 AUX_RGBImageRec* LoadBMP(const char* Filename) {
 	FILE* File = NULL;
@@ -234,20 +240,29 @@ void drawCircle() {
 	glTranslatef(0.0f, 5.0f, 0.0f);
 	glutSolidSphere(0.75f, 20, 20);
 }
-
+float testspeed;
 void MyTimer(int value) {
-
+	testspeed += 2*dx;
 	glutPostRedisplay();
 	crash();
 	//printf("%f %f %d %f\n", ptLastMousePosit.x, ptLastMousePosit.y, ptCurrentMousePosit.x, ptCurrentMousePosit.y);
 	x1 += dx;
-	printf("%d\n", test);
+	
 	if (x1 > 4 || x1 < -4) {
 		dx *= -1;
 	}
-	else if (x1 > 11 || x1 < -4) {
+	
+	else if (x1 > 11 || x1 < -4)
+	{
 		dx *= -1;
 	}
+	mobs[0].p = vec3(0.0f + x1, -50.0f, 48.0f);
+	mobs[0].size = 0.1f;
+	mobs[1].p = vec3(-26.0f, -50.0f, 20.0f + x1);
+	mobs[1].size = 0.1f;
+	mobs[2].p = vec3(28.0f, -50.0f, 20.0f + x1);
+	mobs[2].size = 0.1f;
+	//printf("%f %f %f\n", mobs[0].p.x, mobs[0].p.y, mobs[0].p.z);
 	glutTimerFunc(40, MyTimer, 1);
 	if (die == true)
 	{
@@ -266,13 +281,16 @@ void MyTimer(int value) {
 
 }
 void drawtrap() {////////////////////////////
-	glColor3f(1.0f, 0.0f, 0.0f);
+	glColor3f(1.0f,1.0f, 1.0f);
 	glPushMatrix();
 	glTranslatef(0.0f + x1, -50.0f, 48.0f);
 	glRotatef(-90, 1, 0, 0);
 	glutSolidCylinder(0.5f, 5.0f, 32, 4);
 	glPopMatrix();
-
+	//
+	
+	//
+	glColor3f(1.0f, 0.0f, 0.0f);
 	glPushMatrix();
 	glTranslatef(-26.0f, -50.0f, 20.0f + x1);
 	glRotatef(-90, 1, 0, 0);
@@ -738,9 +756,19 @@ void SetTextMessage(GLuint index[64])
 {
 	switch (index[3]) {
 
-	case 100: sprintf_s(name, "gentleman"); break;
-	case 101: sprintf_s(name, "girl"); break;
-	case 102: sprintf_s(name, "monalisa"); break;
+	case 100: 
+		sprintf(name, "gentleman"); 
+		trap = true;
+		printf("gentleman\n");
+		break;
+	case 101: sprintf(name, "monalisa"); 
+		trap = true;
+		printf("monalisa\n"); 
+		break;
+	case 102: sprintf(name, "girl");
+		trap = true;
+		printf("girl\n");
+		break;
 
 
 		//default: sprintf_s(name, "None"); break;
@@ -757,19 +785,20 @@ void SelectObjects(GLint x, GLint y) {
 	glRenderMode(GL_SELECT);
 	glLoadIdentity();
 	gluPickMatrix(x, viewport[3] - y, 2, 2, viewport);
-	printf("%f %f\n", x, y);
-	gluPerspective(45.0f, (GLfloat)g_nWindowWidth / (GLfloat)g_nWindowHeight, 0.1f, 100.0f);
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
+	renderScene();
+	//gluPerspective(45.0f, (GLfloat)g_nWindowWidth / (GLfloat)g_nWindowHeight, 0.1f, 100.0f);
+	//gluPerspective(45, ratio, 1, 1000);
+	gluLookAt(px, py, pz, px + lx, py + ly, pz + lz, 0.0f, 1.0f, 0.0f);
+	/*glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();*/
 
-
+	renderScene();
 	hits = glRenderMode(GL_RENDER);
 	if (hits > 0)
 	{
 		//ProcessSelect(selectBuff);
 		SetTextMessage(selectBuff);
 	}
-
 	glMatrixMode(GL_PROJECTION);
 	glPopMatrix();
 	glMatrixMode(GL_MODELVIEW);
@@ -815,7 +844,7 @@ void renderScene(void) {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	drawMap();
-	if(test==true)
+	if(trap==true)
 		drawtrap();
 	glPushMatrix();
 	{
@@ -833,8 +862,6 @@ void renderScene(void) {
 	beginRenderText(g_nWindowWidth, g_nWindowHeight);
 	{
 		glColor3f(1.f, 1.f, 1.0f);
-		int u = (1.f - 0.75f) / 4.f * g_nWindowWidth;
-		int v = (1.f - (-1.75f)) / 4.f * g_nWindowHeight;
 		if (die == false && text == true)
 		{
 			renderText(g_nWindowWidth - 0.95, g_nWindowHeight + 0.9, BITMAP_FONT_TYPE_HELVETICA_12, coor);
@@ -912,49 +939,48 @@ void processNormalKeys(unsigned char key, int x, int y) {
 		exit(0);
 }
 
-void addMob(vec3 position, float size)
+//void addMob(vec3 position, float size,float velocity)
+//{
+//	Mob newmob;
+//
+//	vec3 _pos(0, 0, 0);
+//	_pos.x = position.x;
+//	_pos.y = position.y;
+//	_pos.z = position.z;
+//	float _size = size;
+//	//newmob.p = _pos;
+//	newmob.p.x = _pos.x;
+//	newmob.p.y = _pos.y;
+//	newmob.p.z = _pos.z;
+//	newmob.v = velocity;
+//	newmob.size = _size;
+//	
+//
+//	mobs.push_back(newmob);
+//}
+void addMob()
 {
 	Mob newmob;
-
-	vec3 _pos(0, 0, 0);
-	_pos.x = position.x;
-	_pos.y = position.y;
-	_pos.z = position.z;
-	float _size = size;
-	//newmob.p = _pos;
-	newmob.p.x = _pos.x;
-	newmob.p.y = _pos.y;
-	newmob.p.z = _pos.z;
-
-	newmob.size = _size;
-	glutSolidCube(size);
-	/*mat4 trans = translate(mat4(1), vec3(position.x, position.y, position.z));
-	vec4 tempP = vec4(newmob.p, 0);
-	newmob.p = tempP * trans;*/
-
-
-	//glutSolidCube(size);
-
 	mobs.push_back(newmob);
 }
 vector<float> dist;
 void crash()
 {
-
 	for (int i = 0; i < mobs.size(); i++)
 	{
 		vec3 p = vec3(px, py, pz);
-		vec3 dis = mobs[0].p - p;       //dis=반지름 사이
-		//compute length
-		float L = length(dis);                    //L= 반지름 사이의 거리
-		//dist.push_back(L);
-		//dis = normalize(dis);
-		if (L <= mobs[0].size - 0.01)          //L이 반지름 사이의 거리보다 작다? => 두 공이 겹쳤다
+		vec3 dis = mobs[i].p - p;
+		float L = length(dis);
+		//printf("%f %f %f\n", px, mobs[0].p.x, L);
+		if (L <= 2.0f)
 		{
 			die = true;
+			printf("닿았따\n");
 		}
-
 	}
+	
+
+	
 }
 void inputKey(unsigned char key, int x, int y) {
 
@@ -988,7 +1014,7 @@ void inputKey(unsigned char key, int x, int y) {
 		rst();
 		break;
 	case 'q':
-		test = true;
+		trap = true;
 		break;
 	}
 }
@@ -1037,7 +1063,8 @@ void glInit()
 	LoadGLTextures();
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_TEXTURE_2D);
-
+	for (int i = 0; i < 3; i++)
+		addMob();
 	if (fuel == 0) {
 		glEnable(GL_DEPTH_TEST);
 		glPushMatrix();
