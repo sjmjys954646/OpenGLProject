@@ -27,6 +27,8 @@ static POINT    ptLastMousePosit;
 static POINT    ptCurrentMousePosit;
 static bool        bMousing;
 
+float posix = 0; ////////////////
+float posiy = 0;//////////////////
 
 float g_fDistance = -5.0f;
 float g_fSpinX = 0.0f;
@@ -764,83 +766,7 @@ void drawMap()
 }
 
 
-void SetTextMessage(GLuint index[64])
-{
-    switch (index[3]) {
 
-    case 100: sprintf_s(name, "gentleman"); break;
-    case 101: sprintf_s(name, "girl"); break;
-    case 102: sprintf_s(name, "monalisa"); break;
-
-
-        //default: sprintf_s(name, "None"); break;
-    }
-}
-void SelectObjects(GLint x, GLint y) {
-    GLuint selectBuff[64];
-    GLint hits, viewport[4];
-
-    glSelectBuffer(64, selectBuff);
-    glGetIntegerv(GL_VIEWPORT, viewport);
-    glMatrixMode(GL_PROJECTION);
-    glPushMatrix();
-    glRenderMode(GL_SELECT);
-    glLoadIdentity();
-    gluPickMatrix(x, viewport[3] - y, 2, 2, viewport);
-    printf("%f %f\n", x, y);
-    gluPerspective(45.0f, (GLfloat)g_nWindowWidth / (GLfloat)g_nWindowHeight, 0.1f, 100.0f);
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
-
-
-    hits = glRenderMode(GL_RENDER);
-    if (hits > 0)
-    {
-        //ProcessSelect(selectBuff);
-        SetTextMessage(selectBuff);
-    }
-
-    glMatrixMode(GL_PROJECTION);
-    glPopMatrix();
-    glMatrixMode(GL_MODELVIEW);
-}
-void MyMouse(int button, int state, int x, int y) {
-    switch (button) {
-    case GLUT_LEFT_BUTTON:
-        if (state == GLUT_DOWN) {
-            ptLastMousePosit.x = x; ptCurrentMousePosit.x = x;
-            ptLastMousePosit.y = y; ptCurrentMousePosit.y = y;
-            SelectObjects(ptCurrentMousePosit.x, ptCurrentMousePosit.y);
-            bMousing = true;
-        }
-        else
-            bMousing = false;
-        break;
-    case GLUT_MIDDLE_BUTTON:
-    case GLUT_RIGHT_BUTTON:
-        break;
-    default:
-        break;
-    }
-
-    glutPostRedisplay();
-}
-
-void MyMotion(int x, int y) {
-    ptCurrentMousePosit.x = x;
-    ptCurrentMousePosit.y = y;
-
-    if (bMousing)
-    {
-        g_fSpinX -= (ptCurrentMousePosit.x - ptLastMousePosit.x);
-        g_fSpinY -= (ptCurrentMousePosit.y - ptLastMousePosit.y);
-    }
-
-    ptLastMousePosit.x = ptCurrentMousePosit.x;
-    ptLastMousePosit.y = ptCurrentMousePosit.y;
-
-    glutPostRedisplay();
-}
 void renderScene(void) {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -989,6 +915,22 @@ void crash()
 
     }
 }
+
+
+void MyMouse(int but, int state, int x, int y) {
+    switch (but) {
+    case GLUT_LEFT_BUTTON:
+        if (state == GLUT_DOWN) {
+            posix = x;
+            posiy = y;
+
+            if (-40 < posix < 40 && -80 < posiy < 80) {
+                trap = true;
+            }
+        }
+        
+    }////////////////////////////////////////////////
+}
 void inputKey(unsigned char key, int x, int y) {
 
     switch (key) {
@@ -1101,7 +1043,7 @@ int main(int argc, char** argv)
     glutTimerFunc(40, MyTimer, 1);
     glutReshapeFunc(changeSize);
     glutMouseFunc(MyMouse);
-    glutMotionFunc(MyMotion);
+    
     glutMainLoop();
 
     return(0);
