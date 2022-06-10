@@ -21,7 +21,7 @@
 using namespace std;
 using namespace glm;
 static float ang = 0.0f, ratio;
-static float px = 0.0f, py = 1.75f-50.0f, pz = 0.0f;
+static float px = 0.0f, py = 1.75f, pz = 0.0f;
 static float lx = 0.0f, ly = 0.0f, lz = 1.0f;
 static POINT    ptLastMousePosit;
 static POINT    ptCurrentMousePosit;
