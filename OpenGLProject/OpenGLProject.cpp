@@ -423,7 +423,7 @@ void MyTimer(int value) {
 
 		//x = 300.0f;
 		pz = 500.0f;
-		newExplosion();
+		//newExplosion();
 
 	}
 	if (die == false && py == 1.75f && pz >= 29.f && pz <= 35.f)
@@ -818,12 +818,12 @@ void drawGallary()
 	drawFullWall(-20.0f - 60.0f, 0.0f, 0);
 	drawFullWall(-20.0f - 60.0f, 40.0f, 0);
 	glPushName(100);
-	drawPicture(-78.5f, 20.0f, 1, 1);
+	drawPicture(-78.5f, 30.0f, 1, 1);
 	glPopName();
 	drawPannel(-78.5f, 20.0f - 1.6f, 1);
 	drawPannelGround(-50.0f, 15.0f, 45.0f);
 	//정면
-	drawPicture(-78.5f, 30.0f, 1, 29);
+	drawPicture(-78.5f, 20.0f, 1, 29);
 	drawPicture(-78.5f, 10.0f, 1, 30);
 	//왼쪽
 	drawPicture(-55.f, 39.8f, 0, 31);
@@ -840,7 +840,7 @@ void drawGallary()
 	drawFullWall(-20.0f + 60.0f, 0.0f, 0);
 	drawFullWall(-20.0f + 60.0f, 40.0f, 0);
 	glPushName(101);
-	drawPicture(79.5f, 20.0f, 1, 0);
+	drawPicture(65.f, 1.0f, 0, 0);
 	glPopName();
 	drawPannel(78.5f, 20.0f + 2.8f, 1);
 	drawPannelGround(50.0f, 25.0f, 45.0f);
@@ -849,7 +849,7 @@ void drawGallary()
 	drawPicture(79.5f, 10.0f, 1, 18);
 	//왼쪽
 	drawPicture(55.f, 1.0f, 0, 19);
-	drawPicture(65.f, 1.0f, 0, 20);
+	drawPicture(79.5f, 20.0f, 1, 20);
 	//오른쪽
 	drawPicture(55.f, 39.8f, 0, 21);
 	drawPicture(65.f, 39.8f, 0, 22);
@@ -862,7 +862,7 @@ void drawGallary()
 	drawFullWall(-20.0f, 100.0f, 0);
 	drawFullWall(-20.0f, 60.0f, 1);
 	glPushName(102);
-	drawPicture(0.0f, 99.5f, 0, 2);
+	drawPicture(-19.6f, 85.0f, 1, 2);
 	glPopName();
 	drawPannel(0.0f - 1.6f, 99.5f, 0);
 	//정면
@@ -873,7 +873,7 @@ void drawGallary()
 	drawPicture(19.6f, 75.0f, 1, 26);
 	//오른쪽벽
 	drawPicture(-19.6f, 75.0f, 1, 27);
-	drawPicture(-19.6f, 85.0f, 1, 28);
+	drawPicture(0.0f, 99.5f, 0, 28);
 	glEnd();
 
 
@@ -1109,11 +1109,11 @@ void renderScene(void) {
 	if (realclear == true)
 		rain();
 	if (girl==true)
-		drawPicture(0.0f, 98.0f, 0, 3);
+		drawPicture(-19.5f, 85.0f, 1, 3);
 	if(monalisa==true)
-		drawPicture(79.0f, 20.0f, 1, 15);
+		drawPicture(65.0f, 1.1f, 0, 15);
 	if(gentleman==true)
-		drawPicture(-78.0f, 20.0f, 1, 16);
+		drawPicture(-78.4f, 30.0f, 1, 16);
 	glPushMatrix();
 	{
 		glTranslatef(0.0f, 1.0f, 10.0f);
