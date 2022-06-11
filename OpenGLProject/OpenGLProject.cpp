@@ -416,46 +416,54 @@ void MyTimer(int value) {
 	}
 }
 void drawtrap() {
-	glColor3f(1.0f, 0.0f, 0.0f);
+	glColor3f(1.0f, 1.0f, 1.0f);
 	glPushMatrix(); //가운데 밖
 	glTranslatef(0.0f + x1, -50.0f, 51.0f);
 	glRotatef(-90, 1, 0, 0);
-	glutSolidCylinder(0.5f, 5.0f, 32, 4);
+	glBindTexture(GL_TEXTURE_2D, texture[10]);
+	texturedCylinder(0.5f, 5.0f, 32);
 	glPopMatrix();
 
 	glPushMatrix(); //가운데 안
 	glTranslatef(-5.0f, -47.0f + x2, 43.0f);
 	glRotatef(90, 1, 90, 0);
-	glutSolidCylinder(0.5f, 60.0f, 32, 4);
+	glBindTexture(GL_TEXTURE_2D, texture[10]);
+	texturedCylinder(0.5f, 10.0f, 32);
 	glPopMatrix();
 
 	glPushMatrix(); //왼쪽 안
 	glTranslatef(33.0f, -50.0f, 20.0f + x1);
 	glRotatef(-90, 1, 0, 0);
-	glutSolidCylinder(0.5f, 5.0f, 32, 4);
+	glBindTexture(GL_TEXTURE_2D, texture[10]);
+	texturedCylinder(0.5f, 5.0f, 32);
 	glPopMatrix();
 
 	glPushMatrix(); //왼쪽 밖
 	glTranslatef(23.0f, -50.0f, 19.5f - x2);
 	glRotatef(-90, 1, 0, 0);
-	glutSolidCylinder(0.5f, 5.0f, 32, 4);
+	glBindTexture(GL_TEXTURE_2D, texture[10]);
+	texturedCylinder(0.5f, 5.0f, 32);
 	glPopMatrix();
 
 	glPushMatrix();//오른쪽 밖
 	glTranslatef(-23.0f, -50.0f, 20.0f + x1);
 	glRotatef(-90, 1, 0, 0);
-	glutSolidCylinder(0.5f, 5.0f, 32, 4);
+	glBindTexture(GL_TEXTURE_2D, texture[10]);
+	texturedCylinder(0.5f, 5.0f, 32);
 	glPopMatrix();
 
 	glPushMatrix(); //오른쪽 안
 	glTranslatef(-33.0f, -50.0f, 20.0f - x1);
 	glRotatef(-90, 1, 0, 0);
-	glutSolidCylinder(0.5f, 5.0f, 32, 4);
+	glBindTexture(GL_TEXTURE_2D, texture[10]);
+	texturedCylinder(0.5f, 5.0f, 32);
 	glPopMatrix();
 
 	glPushMatrix();
 	glTranslatef(-10.0f + x3 - x5, -48.5f, 90.0f - x4 + x6);
-	glutSolidSphere(1.5, 30, 30);
+	glBindTexture(GL_TEXTURE_2D, texture[10]);
+	texturedSphere(1.5, 32);
+	
 	glPopMatrix();
 
 	//glPushMatrix();
@@ -1291,6 +1299,9 @@ void inputKey(unsigned char key, int x, int y) {
 		break;
 	case 'k': case'K':
 		start = true;
+		break;
+	case 'q':
+		trap = true;
 		break;
 	
 	}
