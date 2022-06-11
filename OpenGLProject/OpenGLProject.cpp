@@ -84,7 +84,40 @@ struct particle {
 	GLfloat xd, yd, zd;
 	GLfloat cs;
 } p[1000];
+void texturedCube()
+{
+	glBegin(GL_QUADS);
+	glTexCoord2f(0.0f, 0.0f); glVertex3f(-1.0f, -1.0f, 1.0f);  //앞면
+	glTexCoord2f(1.0f, 0.0f); glVertex3f(1.0f, -1.0f, 1.0f);
+	glTexCoord2f(1.0f, 1.0f); glVertex3f(1.0f, 1.0f, 1.0f);
+	glTexCoord2f(0.0f, 1.0f); glVertex3f(-1.0f, 1.0f, 1.0f);
 
+	glTexCoord2f(1.0f, 0.0f); glVertex3f(-1.0f, -1.0f, -1.0f);  //뒷면
+	glTexCoord2f(1.0f, 1.0f); glVertex3f(-1.0f, 1.0f, -1.0f);
+	glTexCoord2f(0.0f, 1.0f); glVertex3f(1.0f, 1.0f, -1.0f);
+	glTexCoord2f(0.0f, 0.0f); glVertex3f(1.0f, -1.0f, -1.0f);
+
+	glTexCoord2f(0.0f, 1.0f); glVertex3f(-1.0f, 1.0f, -1.0f);  //윗면
+	glTexCoord2f(0.0f, 0.0f); glVertex3f(-1.0f, 1.0f, 1.0f);
+	glTexCoord2f(1.0f, 0.0f); glVertex3f(1.0f, 1.0f, 1.0f);
+	glTexCoord2f(1.0f, 1.0f); glVertex3f(1.0f, 1.0f, -1.0f);
+
+	glTexCoord2f(1.0f, 1.0f); glVertex3f(-1.0f, -1.0f, -1.0f);  //아랫면
+	glTexCoord2f(0.0f, 1.0f); glVertex3f(1.0f, -1.0f, -1.0f);
+	glTexCoord2f(0.0f, 0.0f); glVertex3f(1.0f, -1.0f, 1.0f);
+	glTexCoord2f(1.0f, 0.0f); glVertex3f(-1.0f, -1.0f, 1.0f);
+
+	glTexCoord2f(1.0f, 0.0f); glVertex3f(1.0f, -1.0f, -1.0f);  //우측면
+	glTexCoord2f(1.0f, 1.0f); glVertex3f(1.0f, 1.0f, -1.0f);
+	glTexCoord2f(0.0f, 1.0f); glVertex3f(1.0f, 1.0f, 1.0f);
+	glTexCoord2f(0.0f, 0.0f); glVertex3f(1.0f, -1.0f, 1.0f);
+
+	glTexCoord2f(0.0f, 0.0f); glVertex3f(-1.0f, -1.0f, -1.0f);  //좌측면
+	glTexCoord2f(1.0f, 0.0f); glVertex3f(-1.0f, -1.0f, 1.0f);
+	glTexCoord2f(1.0f, 1.0f); glVertex3f(-1.0f, 1.0f, 1.0f);
+	glTexCoord2f(0.0f, 1.0f); glVertex3f(-1.0f, 1.0f, -1.0f);
+	glEnd();
+}
 void SetParticle(int i)
 {
 	p[i].xd = -(rand() / 32767.0f - 0.5f) / 200.0f;
@@ -260,9 +293,9 @@ GLuint g_textureID = -1;
 
 const string textureName[30] = { "Data/monalisa.bmp","Data/gentleman.bmp","Data/girlwithearing.bmp","Data/girlwithearing2.bmp","Data/Museum_Front.bmp" ,"Data/brick.bmp" 
 ,"Data/Museum_Left.bmp","Data/Museum_Right.bmp","Data/BlueSky.bmp",  "Data/museum_floor.bmp", "Data/museum_floor_bokdo.bmp", "Data/museum_wall.bmp", "Data/museum_ceiling.bmp" , 
-"Data/Earth.bmp","Data/ib.bmp"
+"Data/Earth.bmp","Data/ib.bmp","Data/monalisa3.bmp","Data/gentleman2.bmp"
 };
-const int TEXTURENUM = 15;
+const int TEXTURENUM = 17;
 
 AUX_RGBImageRec* LoadBMP(const char* Filename) {
 	FILE* File = NULL;
@@ -383,13 +416,13 @@ void MyTimer(int value) {
 	mobs[4].p = vec3(-23.0f, -50.0f, 20.0f + x1);
 	mobs[5].p = vec3(-33.0f, -50.0f, 20.0f - x1);
 	mobs[6].p = vec3(-10.0f + x3 - x5, -48.5f, 90.0f - x4 + x6);
-	glutTimerFunc(40, MyTimer, 1);
+	
 	if (die == true)
 	{
 
 		//x = 300.0f;
 		pz = 500.0f;
-		//newExplosion();
+		newExplosion();
 
 	}
 	if (die == false && py == 1.75f && pz >= 29.f && pz <= 35.f)
@@ -402,8 +435,13 @@ void MyTimer(int value) {
 	{
 		clear = true;
 	}
+
+	if (girl == true || gentleman == true || monalisa == true)
+		trap = true;
+
 	if (clear == true && px <= 2.0f && px >= -2.0f && py == -48.25f && pz <= 2.0f && pz >= -2.0f)
 		realclear = true;
+
 	if (realclear == true)
 	{
 		clr();
@@ -414,6 +452,7 @@ void MyTimer(int value) {
 		py = 1.75f;
 		pz = 0.0f;
 	}
+	glutTimerFunc(40, MyTimer, 1);
 }
 void drawtrap() {
 	glColor3f(1.0f, 1.0f, 1.0f);
@@ -461,63 +500,10 @@ void drawtrap() {
 
 	glPushMatrix();
 	glTranslatef(-10.0f + x3 - x5, -48.5f, 90.0f - x4 + x6);
-	glBindTexture(GL_TEXTURE_2D, texture[10]);
-	texturedSphere(1.5, 32);
+	glBindTexture(GL_TEXTURE_2D, texture[15]);
+	texturedCube();
 	
 	glPopMatrix();
-
-	//glPushMatrix();
-	//glBegin(GL_QUADS);
-	////가운데
-	//glVertex3f(-5.0f, -48.5f + x1, 90.0f);
-	//glVertex3f(-5.0f, -49.0f + x1, 90.0f);
-	//glVertex3f(5.0f, -49.0f + x1, 90.0f);
-	//glVertex3f(5.0f, -48.5f + x1, 90.0f);
-
-	//glVertex3f(5.0f, -48.5f + x1, 100.0f);
-	//glVertex3f(5.0f, -49.0f + x1, 100.0f);
-	//glVertex3f(5.0f, -49.0f + x1, 90.0f);
-	//glVertex3f(5.0f, -48.5f + x1, 90.0f);
-
-	//glVertex3f(-5.0f, -48.5f + x1, 100.0f);
-	//glVertex3f(-5.0f, -49.0f + x1, 100.0f);
-	//glVertex3f(-5.0f, -49.0f + x1, 90.0f);
-	//glVertex3f(-5.0f, -48.5f + x1, 90.0f);
-
-	////왼쪽
-	//glVertex3f(70.0f, -48.5f + x1, 25.0f);
-	//glVertex3f(70.0f, -49.0f + x1, 25.0f);
-	//glVertex3f(70.0f, -49.0f + x1, 15.0f);
-	//glVertex3f(70.0f, -48.5f + x1, 15.0f);
-
-	//glVertex3f(80.0f, -48.5f + x1, 15.0f);
-	//glVertex3f(80.0f, -49.0f + x1, 15.0f);
-	//glVertex3f(70.0f, -49.0f + x1, 15.0f);
-	//glVertex3f(70.0f, -48.5f + x1, 15.0f);
-
-	//glVertex3f(80.0f, -48.5f + x1, 25.0f);
-	//glVertex3f(80.0f, -49.0f + x1, 25.0f);
-	//glVertex3f(70.0f, -49.0f + x1, 25.0f);
-	//glVertex3f(70.0f, -48.5f + x1, 25.0f);
-
-	////오른쪽
-	//glVertex3f(-70.0f, -48.5f + x1, 25.0f);
-	//glVertex3f(-70.0f, -49.0f + x1, 25.0f);
-	//glVertex3f(-70.0f, -49.0f + x1, 15.0f);
-	//glVertex3f(-70.0f, -48.5f + x1, 15.0f);
-
-	//glVertex3f(-80.0f, -48.5f + x1, 15.0f);
-	//glVertex3f(-80.0f, -49.0f + x1, 15.0f);
-	//glVertex3f(-70.0f, -49.0f + x1, 15.0f);
-	//glVertex3f(-70.0f, -48.5f + x1, 15.0f);
-
-	//glVertex3f(-80.0f, -48.5f + x1, 25.0f);
-	//glVertex3f(-80.0f, -49.0f + x1, 25.0f);
-	//glVertex3f(-70.0f, -49.0f + x1, 25.0f);
-	//glVertex3f(-70.0f, -48.5f + x1, 25.0f);
-	//glPopMatrix();
-
-	//glEnd();
 }
 
 void drawStartPoint()
@@ -1087,14 +1073,17 @@ void MyMotion(int x, int y) {
 }
 void renderScene(void) {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-
-
 	drawMap();
 	if (trap == true)
 		drawtrap();
 	if (realclear == true)
 		rain();
+	if (girl==true)
+		drawPicture(0.0f, 98.0f, 0, 3);
+	if(monalisa==true)
+		drawPicture(79.0f, 20.0f, 1, 15);
+	if(gentleman==true)
+		drawPicture(-78.0f, 20.0f, 1, 16);
 	glPushMatrix();
 	{
 		glTranslatef(0.0f, 1.0f, 10.0f);
@@ -1300,10 +1289,22 @@ void inputKey(unsigned char key, int x, int y) {
 	case 'k': case'K':
 		start = true;
 		break;
+	/// 아래는 테스트용
 	case 'q':
 		trap = true;
 		break;
-	
+	case 'o':
+		die = true;
+		break;
+	case 'z':
+		girl = true;
+		break;
+	case 'x':
+		monalisa = true;
+		break;
+	case 'c':
+		gentleman = true;
+		break;
 	}
 }
 
