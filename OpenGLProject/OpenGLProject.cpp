@@ -294,9 +294,11 @@ GLuint g_textureID = -1;
 const string textureName[50] = { "Data/monalisa.bmp","Data/gentleman.bmp","Data/girlwithearing.bmp","Data/girlwithearing2.bmp","Data/Museum_Front.bmp" ,"Data/brick.bmp" 
 ,"Data/Museum_Left.bmp","Data/Museum_Right.bmp","Data/BlueSky.bmp",  "Data/museum_floor.bmp", "Data/museum_floor_bokdo.bmp", "Data/museum_wall.bmp", "Data/museum_ceiling.bmp" , 
 "Data/Earth.bmp","Data/ib.bmp","Data/monalisa3.bmp","Data/gentleman2.bmp","Data/1.bmp","Data/2.bmp","Data/3.bmp","Data/4.bmp","Data/5.bmp","Data/6.bmp","Data/7.bmp","Data/8.bmp",
-"Data/9.bmp","Data/10.bmp","Data/11.bmp","Data/12.bmp","Data/13.bmp","Data/14.bmp","Data/15.bmp","Data/16.bmp","Data/17.bmp","Data/18.bmp"
+"Data/9.bmp","Data/10.bmp","Data/11.bmp","Data/12.bmp","Data/13.bmp","Data/14.bmp","Data/15.bmp","Data/16.bmp","Data/17.bmp","Data/18.bmp" ,"Data/pannel_image_Earth.bmp" ,
+"Data/pannel_image_Gentleman.bmp" ,"Data/pannel_image_Aladin.bmp" ,"Data/pannel_image_SoccerBall.bmp" ,"Data/pannel_image_Monalisa.bmp" ,"Data/pannel_image_Girl.bmp",
+"Data/pannel_stick_image2.bmp", "Data/NoPhotography.bmp"
 };
-const int TEXTURENUM = 35;
+const int TEXTURENUM = 43;
 
 AUX_RGBImageRec* LoadBMP(const char* Filename) {
 	FILE* File = NULL;
@@ -705,53 +707,86 @@ void drawPicture(float leftX, float midZ, bool garosero, int pictureNum)
 	}
 }
 
-void drawPannelGround(float posX, float posZ, float angle)
+void drawPannelGround(float posX, float posZ, float angle, int pictureNum, int needReverse)
 {
 	glPushMatrix();
 	{
 		glTranslatef(posX, 0.0f, posZ);
 		glRotatef(angle, 0, 1, 0);
 	}
+	glBindTexture(GL_TEXTURE_2D, texture[41]);
 	glBegin(GL_QUADS);
 	glColor3f(1.0f, 1.0f, 1.0f);
-	glVertex3f(-0.1f, -50.0f, 0.0f);
-	glVertex3f(-0.1f, -49.0f, 0.0f);
-	glVertex3f(0.1f, -49.0f, 0.0f);
-	glVertex3f(0.1f, -50.0f, 0.0f);
+	glTexCoord2f(0, 0); glVertex3f(-0.1f, -50.0f, 0.0f);
+	glTexCoord2f(0, 1); glVertex3f(-0.1f, -49.0f, 0.0f);
+	glTexCoord2f(1, 1); glVertex3f(0.1f, -49.0f, 0.0f);
+	glTexCoord2f(1, 0); glVertex3f(0.1f, -50.0f, 0.0f);
 	glEnd();
-	glBegin(GL_QUADS);
-	glColor3f(1.0f, 1.0f, 1.0f);
-	glVertex3f(-0.8f, -49.0f, 0.0f);
-	glVertex3f(-0.8f, -48.2f, 0.0f);
-	glVertex3f(0.8f, -48.2f, 0.0f);
-	glVertex3f(0.8f, -49.0f, 0.0f);
-	glEnd();
+	if (needReverse)
+	{
+		glBindTexture(GL_TEXTURE_2D, texture[pictureNum]);
+		glBegin(GL_QUADS);
+		glColor3f(1.0f, 1.0f, 1.0f);
+		glTexCoord2f(0, 0); glVertex3f(-0.8f, -49.0f, 0.0f);
+		glTexCoord2f(0, 1); glVertex3f(-0.8f, -48.2f, 0.0f);
+		glTexCoord2f(1, 1); glVertex3f(0.8f, -48.2f, 0.0f);
+		glTexCoord2f(1, 0); glVertex3f(0.8f, -49.0f, 0.0f);
+		glEnd();
+	}
+	else
+	{
+		glBindTexture(GL_TEXTURE_2D, texture[pictureNum]);
+		glBegin(GL_QUADS);
+		glColor3f(1.0f, 1.0f, 1.0f);
+		glTexCoord2f(1, 0); glVertex3f(-0.8f, -49.0f, 0.0f);
+		glTexCoord2f(1, 1); glVertex3f(-0.8f, -48.2f, 0.0f);
+		glTexCoord2f(0, 1); glVertex3f(0.8f, -48.2f, 0.0f);
+		glTexCoord2f(0, 0); glVertex3f(0.8f, -49.0f, 0.0f);
+		glEnd();
+	}
 	glPopMatrix();
 }
 
-void drawPannel(float leftX, float midZ, bool garosero)
+void drawPannel(float leftX, float midZ, bool garosero, int pictureNum, int needReverse, float yUp)
 {
 	leftX = leftX - 1.2f;
 	if (garosero == 0)
 	{
+		glBindTexture(GL_TEXTURE_2D, texture[pictureNum]);
 		glBegin(GL_QUADS);
 		glColor3f(1.0f, 1.0f, 1.0f);
-		glTexCoord2f(0, 0); glVertex3f(leftX, -48.0f, midZ);
-		glTexCoord2f(0, 1); glVertex3f(leftX, -47.2f, midZ);
-		glTexCoord2f(1, 1); glVertex3f(leftX + 1.2f, -47.2f, midZ);
-		glTexCoord2f(1, 0); glVertex3f(leftX + 1.2f, -48.0f, midZ);
+		glTexCoord2f(1, 0); glVertex3f(leftX, -48.0f + yUp, midZ);
+		glTexCoord2f(1, 1); glVertex3f(leftX, -47.2f + yUp, midZ);
+		glTexCoord2f(0, 1); glVertex3f(leftX + 1.2f, -47.2f + yUp, midZ);
+		glTexCoord2f(0, 0); glVertex3f(leftX + 1.2f, -48.0f + yUp, midZ);
 		glEnd();
 
 	}
 	else
 	{
-		glBegin(GL_QUADS);
-		glColor3f(1.0f, 1.0f, 1.0f);
-		glTexCoord2f(0, 0);  glVertex3f(leftX, -48.0f, midZ);
-		glTexCoord2f(0, 1); glVertex3f(leftX, -47.2f, midZ);
-		glTexCoord2f(1, 1); glVertex3f(leftX, -47.2f, midZ + 1.2f);
-		glTexCoord2f(1, 0); glVertex3f(leftX, -48.0f, midZ + 1.2f);
-		glEnd();
+		if (needReverse)
+		{
+			glBindTexture(GL_TEXTURE_2D, texture[pictureNum]);
+			glBegin(GL_QUADS);
+			glColor3f(1.0f, 1.0f, 1.0f);
+			glTexCoord2f(0, 0);  glVertex3f(leftX, -48.0f + yUp, midZ);
+			glTexCoord2f(0, 1); glVertex3f(leftX, -47.2f + yUp, midZ);
+			glTexCoord2f(1, 1); glVertex3f(leftX, -47.2f + yUp, midZ + 1.2f);
+			glTexCoord2f(1, 0); glVertex3f(leftX, -48.0f + yUp, midZ + 1.2f);
+			glEnd();
+		}
+		else
+		{
+
+			glBindTexture(GL_TEXTURE_2D, texture[pictureNum]);
+			glBegin(GL_QUADS);
+			glColor3f(1.0f, 1.0f, 1.0f);
+			glTexCoord2f(1, 0);  glVertex3f(leftX, -48.0f, midZ);
+			glTexCoord2f(1, 1); glVertex3f(leftX, -47.2f, midZ);
+			glTexCoord2f(0, 1); glVertex3f(leftX, -47.2f, midZ + 1.2f);
+			glTexCoord2f(0, 0); glVertex3f(leftX, -48.0f, midZ + 1.2f);
+			glEnd();
+		}
 	}
 }
 
@@ -808,8 +843,17 @@ void drawGallary()
 	drawWall(-20.0f, 25.0f, 1);
 	drawWall(20.0f, 0.0f, 1);
 	drawWall(20.0f, 25.0f, 1);
-	drawPannelGround(10.0f, 28.0f, 30.0f);
-	drawPannelGround(-10.0f, 30.0f, -30.0f);
+	drawPannel(-20.0f + 1.5f, 12.0f, 1, 36,0, 0.0f);
+	drawPannel(-20.0f + 1.5f, 12.0f, 1, 42, 0, 1.0f);
+
+	drawPannel(20.0f + 1.1f , 26.0f, 1, 39,1, 0.0f);
+	drawPannel(20.0f + 1.1f, 26.0f, 1, 42, 1, 1.0f);
+
+	drawPannel(-5.6f, 40.0f - 0.5f, 0, 40, 0, 0.0f);
+	drawPannel(-5.6f, 40.0f - 0.5f, 0, 42, 0, 1.0f);
+
+	//drawPannelGround(10.0f, 28.0f, 30.0f);
+	drawPannelGround(-10.0f, 30.0f, -30.0f, 38,0);
 	//미술관 땅1(오른쪽방 gentleman)
 	drawFloor(-60.0f, 20.0f, 20.0f, 9);
 	drawWall(20.0f - 60.0f, 0.0f, 1);
@@ -820,8 +864,8 @@ void drawGallary()
 	glPushName(100);
 	drawPicture(-78.5f, 30.0f, 1, 1);
 	glPopName();
-	drawPannel(-78.5f, 20.0f - 1.6f, 1);
-	drawPannelGround(-50.0f, 15.0f, 45.0f);
+	drawPannelGround(-50.0f, 15.0f, 45.0f, 37,1);
+	glPopMatrix();
 	//정면
 	drawPicture(-78.5f, 20.0f, 1, 29);
 	drawPicture(-78.5f, 10.0f, 1, 30);
@@ -842,8 +886,7 @@ void drawGallary()
 	glPushName(101);
 	drawPicture(65.f, 1.0f, 0, 0);
 	glPopName();
-	drawPannel(78.5f, 20.0f + 2.8f, 1);
-	drawPannelGround(50.0f, 25.0f, 45.0f);
+	drawPannelGround(50.0f, 25.0f, 45.0f, 35,0);
 	//정면
 	drawPicture(79.5f, 30.0f, 1, 17);
 	drawPicture(79.5f, 10.0f, 1, 18);
@@ -864,7 +907,6 @@ void drawGallary()
 	glPushName(102);
 	drawPicture(-19.6f, 85.0f, 1, 2);
 	glPopName();
-	drawPannel(0.0f - 1.6f, 99.5f, 0);
 	//정면
 	drawPicture(10.0f, 99.5f, 0, 23);
 	drawPicture(-10.0f, 99.5f, 0, 24);
