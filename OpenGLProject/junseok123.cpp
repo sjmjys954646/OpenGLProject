@@ -15,13 +15,14 @@
 #include <vector>
 #include "bitmap_fonts.h"
 #include <iostream>
+#include <string>
 #define NUM_PARTICLES    10000          
 #define NUM_DEBRIS       1000           
 
 using namespace std;
 using namespace glm;
 static float ang = 0.0f, ratio;
-static float px = 0.0f, py = 1.75f - 50.0f, pz = 94.0f;
+static float px = 0.0f, py = 1.75f, pz = 0.0f;
 static float lx = 0.0f, ly = 0.0f, lz = 1.0f;
 static POINT    ptLastMousePosit;
 static POINT    ptCurrentMousePosit;
@@ -34,7 +35,17 @@ float g_fDistance = -5.0f;
 float g_fSpinX = 0.0f;
 float g_fSpinY = 0.0f;
 GLfloat dx = 0.2;
+GLfloat dx2 = 0.2;
+GLfloat dx3 = 0.2;
+GLfloat dx4 = 0.2;
+GLfloat dx5 = 0.2;
+GLfloat dx6 = 0.2;
 GLfloat x1;
+GLfloat x2;
+GLfloat x3;
+GLfloat x4;
+GLfloat x5;
+GLfloat x6;
 
 static char coor[255];
 static char message[255];
@@ -54,11 +65,22 @@ void drawPicture(float leftX, float midZ, bool garosero, int pictureNum);
 
 GLboolean die = false;    //사망 처리
 GLboolean clear = false;  //클리어 처리
-GLboolean text = true;   // 좌표 및 텍스트 on/off
-GLboolean trap = false;
+GLboolean text = false;   // 좌표 및 텍스트 on/off
+GLboolean trap = false;   //장애물
 GLboolean girl = false;
 GLboolean gentleman = false;
 GLboolean monalisa = false;
+GLboolean realclear = false;
+
+
+void texturedSphere(float radius, int slices) {
+
+	GLUquadric* obj = gluNewQuadric();
+	gluQuadricTexture(obj, GL_TRUE);
+	gluQuadricNormals(obj, GLU_SMOOTH);
+	gluSphere(obj, radius, slices, slices);
+	gluDeleteQuadric(obj);
+}
 struct particle {
 	GLfloat x, y, z;
 	GLfloat r, g, b;
@@ -157,6 +179,11 @@ void rst()
 	die = false;
 	clear = false;
 	trap = false;
+	monalisa = false;
+	gentleman = false;
+	girl = false;
+	text = false;
+	realclear = false;
 	px = 0.0f;
 	py = 1.75f;
 	pz = 0.0f;
@@ -318,23 +345,45 @@ void MyTimer(int value) {
 	testspeed += 2 * dx;
 	glutPostRedisplay();
 	crash();
-
 	x1 += dx;
-
-	if (x1 > 4 || x1 < -4) {
+	if (x1 > 4 || x1 < -5) {
+		dx *= -1;
+	}
+	else if (x1 > 11 || x1 < -4) {
 		dx *= -1;
 	}
 
-	else if (x1 > 11 || x1 < -4)
-	{
-		dx *= -1;
+	x2 += dx;
+	if (x2 > 5 || x2 < -5) {
+		dx2 *= -2;
 	}
-	mobs[0].p = vec3(0.0f + x1, -50.0f, 48.0f);
-	mobs[0].size = 0.1f;
-	mobs[1].p = vec3(-26.0f, -50.0f, 20.0f + x1);
-	mobs[1].size = 0.1f;
-	mobs[2].p = vec3(28.0f, -50.0f, 20.0f + x1);
-	mobs[2].size = 0.1f;
+
+
+	if (x3 < 20) {
+		x3 += dx3;
+	}
+	else if (x4 < 20) {
+		x4 += dx4;
+	}
+	else if (x5 < 20) {
+		x5 += dx5;
+	}
+	else if (x6 < 20) {
+		x6 += dx6;
+	}
+	else if (x3 > 20) {
+		x3 = 0;
+		x4 = 0;
+		x5 = 0;
+		x6 = 0;
+	}
+	mobs[0].p = vec3(0.0f + x1, -50.0f, 51.0f);
+	mobs[1].p = vec3(-5.0f, -47.0f + x2, 43.0f);
+	mobs[2].p = vec3(33.0f, -50.0f, 20.0f + x1);
+	mobs[3].p = vec3(23.0f, -50.0f, 19.5f - x2);
+	mobs[4].p = vec3(-23.0f, -50.0f, 20.0f + x1);
+	mobs[5].p = vec3(-33.0f, -50.0f, 20.0f - x1);
+	mobs[6].p = vec3(-10.0f + x3 - x5, -48.5f, 90.0f - x4 + x6);
 	//printf("%f %f %f\n", mobs[0].p.x, mobs[0].p.y, mobs[0].p.z);
 	glutTimerFunc(40, MyTimer, 1);
 	if (die == true)
@@ -353,93 +402,111 @@ void MyTimer(int value) {
 	}
 	if (girl == true && gentleman == true && monalisa == true)
 	{
-		
 		clear = true;
 	}
-	if (clear == true)
+	if (clear == true && px <= 2.0f && px >= -2.0f && py == -48.25f && pz <= 2.0f && pz >= -2.0f)
+		realclear = true;
+	if (realclear == true)
 	{
 		clr();
 	}
 
 }
-void drawtrap() {////////////////////////////
-	glColor3f(1.0f, 1.0f, 1.0f);
-	glPushMatrix();
-	glTranslatef(0.0f + x1, -50.0f, 48.0f);
-	glRotatef(-90, 1, 0, 0);
-	glutSolidCylinder(0.5f, 5.0f, 32, 4);
-	glPopMatrix();
-	//
-
-	//
+void drawtrap() {
 	glColor3f(1.0f, 0.0f, 0.0f);
-	glPushMatrix();
-	glTranslatef(-26.0f, -50.0f, 20.0f + x1);
+	glPushMatrix(); //가운데 밖
+	glTranslatef(0.0f + x1, -50.0f, 51.0f);
+	glRotatef(-90, 1, 0, 0);
+	glutSolidCylinder(0.5f, 5.0f, 32, 4);
+	glPopMatrix();
+
+	glPushMatrix(); //가운데 안
+	glTranslatef(-5.0f, -47.0f + x2, 43.0f);
+	glRotatef(90, 1, 90, 0);
+	glutSolidCylinder(0.5f, 60.0f, 32, 4);
+	glPopMatrix();
+
+	glPushMatrix(); //왼쪽 안
+	glTranslatef(33.0f, -50.0f, 20.0f + x1);
+	glRotatef(-90, 1, 0, 0);
+	glutSolidCylinder(0.5f, 5.0f, 32, 4);
+	glPopMatrix();
+
+	glPushMatrix(); //왼쪽 밖
+	glTranslatef(23.0f, -50.0f, 19.5f - x2);
+	glRotatef(-90, 1, 0, 0);
+	glutSolidCylinder(0.5f, 5.0f, 32, 4);
+	glPopMatrix();
+
+	glPushMatrix();//오른쪽 밖
+	glTranslatef(-23.0f, -50.0f, 20.0f + x1);
+	glRotatef(-90, 1, 0, 0);
+	glutSolidCylinder(0.5f, 5.0f, 32, 4);
+	glPopMatrix();
+
+	glPushMatrix(); //오른쪽 안
+	glTranslatef(-33.0f, -50.0f, 20.0f - x1);
 	glRotatef(-90, 1, 0, 0);
 	glutSolidCylinder(0.5f, 5.0f, 32, 4);
 	glPopMatrix();
 
 	glPushMatrix();
-	glTranslatef(28.0f, -50.0f, 20.0f + x1);
-	glRotatef(-90, 1, 0, 0);
-	glutSolidCylinder(0.5f, 5.0f, 32, 4);
+	glTranslatef(-10.0f + x3 - x5, -48.5f, 90.0f - x4 + x6);
+	glutSolidSphere(1.5, 30, 30);
 	glPopMatrix();
 
 	//glPushMatrix();
-	//glTranslatef(-10.0f, -45.0f +x1, 14.0f);
-	//glRotatef(90, 1, 0, 0);
-	//glutSolidCone(1.0f, 3.0f, 10, 2);
+	//glBegin(GL_QUADS);
+	////가운데
+	//glVertex3f(-5.0f, -48.5f + x1, 90.0f);
+	//glVertex3f(-5.0f, -49.0f + x1, 90.0f);
+	//glVertex3f(5.0f, -49.0f + x1, 90.0f);
+	//glVertex3f(5.0f, -48.5f + x1, 90.0f);
+
+	//glVertex3f(5.0f, -48.5f + x1, 100.0f);
+	//glVertex3f(5.0f, -49.0f + x1, 100.0f);
+	//glVertex3f(5.0f, -49.0f + x1, 90.0f);
+	//glVertex3f(5.0f, -48.5f + x1, 90.0f);
+
+	//glVertex3f(-5.0f, -48.5f + x1, 100.0f);
+	//glVertex3f(-5.0f, -49.0f + x1, 100.0f);
+	//glVertex3f(-5.0f, -49.0f + x1, 90.0f);
+	//glVertex3f(-5.0f, -48.5f + x1, 90.0f);
+
+	////왼쪽
+	//glVertex3f(70.0f, -48.5f + x1, 25.0f);
+	//glVertex3f(70.0f, -49.0f + x1, 25.0f);
+	//glVertex3f(70.0f, -49.0f + x1, 15.0f);
+	//glVertex3f(70.0f, -48.5f + x1, 15.0f);
+
+	//glVertex3f(80.0f, -48.5f + x1, 15.0f);
+	//glVertex3f(80.0f, -49.0f + x1, 15.0f);
+	//glVertex3f(70.0f, -49.0f + x1, 15.0f);
+	//glVertex3f(70.0f, -48.5f + x1, 15.0f);
+
+	//glVertex3f(80.0f, -48.5f + x1, 25.0f);
+	//glVertex3f(80.0f, -49.0f + x1, 25.0f);
+	//glVertex3f(70.0f, -49.0f + x1, 25.0f);
+	//glVertex3f(70.0f, -48.5f + x1, 25.0f);
+
+	////오른쪽
+	//glVertex3f(-70.0f, -48.5f + x1, 25.0f);
+	//glVertex3f(-70.0f, -49.0f + x1, 25.0f);
+	//glVertex3f(-70.0f, -49.0f + x1, 15.0f);
+	//glVertex3f(-70.0f, -48.5f + x1, 15.0f);
+
+	//glVertex3f(-80.0f, -48.5f + x1, 15.0f);
+	//glVertex3f(-80.0f, -49.0f + x1, 15.0f);
+	//glVertex3f(-70.0f, -49.0f + x1, 15.0f);
+	//glVertex3f(-70.0f, -48.5f + x1, 15.0f);
+
+	//glVertex3f(-80.0f, -48.5f + x1, 25.0f);
+	//glVertex3f(-80.0f, -49.0f + x1, 25.0f);
+	//glVertex3f(-70.0f, -49.0f + x1, 25.0f);
+	//glVertex3f(-70.0f, -48.5f + x1, 25.0f);
 	//glPopMatrix();
 
-	glPushMatrix();
-	glBegin(GL_QUADS);
-	glVertex3f(-5.0f, -48.5f + x1, 90.0f);
-	glVertex3f(-5.0f, -49.0f + x1, 90.0f);
-	glVertex3f(5.0f, -49.0f + x1, 90.0f);
-	glVertex3f(5.0f, -48.5f + x1, 90.0f);
-
-	glVertex3f(5.0f, -48.5f + x1, 100.0f);
-	glVertex3f(5.0f, -49.0f + x1, 100.0f);
-	glVertex3f(5.0f, -49.0f + x1, 90.0f);
-	glVertex3f(5.0f, -48.5f + x1, 90.0f);
-
-	glVertex3f(-5.0f, -48.5f + x1, 100.0f);
-	glVertex3f(-5.0f, -49.0f + x1, 100.0f);
-	glVertex3f(-5.0f, -49.0f + x1, 90.0f);
-	glVertex3f(-5.0f, -48.5f + x1, 90.0f);
-
-	glVertex3f(70.0f, -48.5f + x1, 25.0f);
-	glVertex3f(70.0f, -49.0f + x1, 25.0f);
-	glVertex3f(70.0f, -49.0f + x1, 15.0f);
-	glVertex3f(70.0f, -48.5f + x1, 15.0f);
-
-	glVertex3f(80.0f, -48.5f + x1, 15.0f);
-	glVertex3f(80.0f, -49.0f + x1, 15.0f);
-	glVertex3f(70.0f, -49.0f + x1, 15.0f);
-	glVertex3f(70.0f, -48.5f + x1, 15.0f);
-
-	glVertex3f(80.0f, -48.5f + x1, 25.0f);
-	glVertex3f(80.0f, -49.0f + x1, 25.0f);
-	glVertex3f(70.0f, -49.0f + x1, 25.0f);
-	glVertex3f(70.0f, -48.5f + x1, 25.0f);
-
-	glVertex3f(-70.0f, -48.5f + x1, 25.0f);
-	glVertex3f(-70.0f, -49.0f + x1, 25.0f);
-	glVertex3f(-70.0f, -49.0f + x1, 15.0f);
-	glVertex3f(-70.0f, -48.5f + x1, 15.0f);
-
-	glVertex3f(-80.0f, -48.5f + x1, 15.0f);
-	glVertex3f(-80.0f, -49.0f + x1, 15.0f);
-	glVertex3f(-70.0f, -49.0f + x1, 15.0f);
-	glVertex3f(-70.0f, -48.5f + x1, 15.0f);
-
-	glVertex3f(-80.0f, -48.5f + x1, 25.0f);
-	glVertex3f(-80.0f, -49.0f + x1, 25.0f);
-	glVertex3f(-70.0f, -49.0f + x1, 25.0f);
-	glVertex3f(-70.0f, -48.5f + x1, 25.0f);
-	glPopMatrix();
-
-	glEnd();
+	//glEnd();
 }
 
 void drawStartPoint()
@@ -845,17 +912,16 @@ void SetTextMessage(GLuint index[64])
 	switch (index[3]) {
 
 	case 100:
-		sprintf(name, "gentleman");
 		trap = true;
 		gentleman = true;
 		printf("gentleman\n");
 		break;
-	case 101: sprintf(name, "monalisa");
+	case 101: 
 		trap = true;
 		monalisa = true;
 		printf("monalisa\n");
 		break;
-	case 102: sprintf(name, "girl");
+	case 102: 
 		trap = true;
 		girl = true;
 		printf("girl\n");
@@ -951,25 +1017,27 @@ void renderScene(void) {
 
 
 
-	sprintf(coor, "x : %f y : %f z : %f", px, py, pz);
+	sprintf(coor, "x : %f z : %f", px, pz);
 	sprintf(name, "Picture");
 	sprintf(message, "You DIED");
 	sprintf(diemessage, "Press 'r' to restart");
 	sprintf(clearmessage, "CLEAR!!");
 	beginRenderText(g_nWindowWidth, g_nWindowHeight);
 	{
-		glColor3f(1.f, 1.f, 1.0f);
+		
+		glColor3f(1.0f, 1.0f, 1.0f);
 		if (die == false && text == true)
 		{
 			renderText(g_nWindowWidth - 0.95, g_nWindowHeight + 0.9, BITMAP_FONT_TYPE_HELVETICA_12, coor);
-			renderText(g_nWindowWidth - 0.95, g_nWindowHeight + 0.8, BITMAP_FONT_TYPE_HELVETICA_12, name);
+			
+			//renderText(g_nWindowWidth - 0.95, g_nWindowHeight + 0.8, BITMAP_FONT_TYPE_HELVETICA_12,name);
 		}
 		if (die == true)
 		{
 			renderText(g_nWindowWidth - 0.08, g_nWindowHeight + 0.05, BITMAP_FONT_TYPE_HELVETICA_18, message);
 			renderText(g_nWindowWidth - 0.15, g_nWindowHeight - 0.05, BITMAP_FONT_TYPE_HELVETICA_18, diemessage);
 		}
-		if (clear == true)
+		if (realclear == true)
 		{
 			renderText(g_nWindowWidth - 0.08, g_nWindowHeight + 0.05, BITMAP_FONT_TYPE_HELVETICA_18, clearmessage);
 		}
@@ -1022,7 +1090,7 @@ void orientMe(float ang) {
 	lz = -cos(ang);
 	glLoadIdentity();
 	gluLookAt(px, py, pz, px + lx, py + ly, pz + lz, 0.0f, 1.0f, 0.0f);
-	sprintf(coor, "x : %f y : %f z : %f", px, py, pz);
+	sprintf(coor, "x : %f z : %f", px, pz);
 }
 
 
@@ -1031,7 +1099,7 @@ void moveMeFlat(int i) {
 	pz = pz + i * (lz) * 0.2;
 	glLoadIdentity();
 	gluLookAt(px, py, pz, px + lx, py + ly, pz + lz, 0.0f, 1.0f, 0.0f);
-	sprintf(coor, "x : %f y : %f z : %f", px, py, pz);
+	sprintf(coor, "x : %f z : %f", px, pz);
 }
 
 void processNormalKeys(unsigned char key, int x, int y) {
@@ -1173,7 +1241,7 @@ void glInit()
 	LoadGLTextures();
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_TEXTURE_2D);
-	for (int i = 0; i < 3; i++)
+	for (int i = 0; i < 7; i++)
 		addMob();
 	if (fuel == 0) {
 		glEnable(GL_DEPTH_TEST);
@@ -1191,7 +1259,7 @@ int main(int argc, char** argv)
 {
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_DEPTH | GLUT_DOUBLE | GLUT_RGBA);
-	glutInitWindowPosition(100, 100);
+	glutInitWindowPosition(200, 200);
 	glutInitWindowSize(900, 700);
 	glutCreateWindow("yunsoo");
 	glInit();
