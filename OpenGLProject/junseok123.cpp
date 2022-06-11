@@ -52,6 +52,9 @@ static char message[255];
 static char diemessage[255];
 static char name[255];
 static char clearmessage[255];
+static char warn[255];
+static char gohome[255];
+
 int    g_nWindowWidth;
 int    g_nWindowHeight;
 void DrawCube();
@@ -360,16 +363,16 @@ void MyTimer(int value) {
 
 
 	if (x3 < 20) {
-		x3 += dx3;
+		x3 += 1.5*dx3;
 	}
 	else if (x4 < 20) {
-		x4 += dx4;
+		x4 += 1.5*dx4;
 	}
 	else if (x5 < 20) {
-		x5 += dx5;
+		x5 += 1.5*dx5;
 	}
 	else if (x6 < 20) {
-		x6 += dx6;
+		x6 += 1.5*dx6;
 	}
 	else if (x3 > 20) {
 		x3 = 0;
@@ -394,7 +397,7 @@ void MyTimer(int value) {
 		//newExplosion();
 
 	}
-	if (die == false && py == 1.75f && pz >= 29.f)
+	if (die == false && py == 1.75f && pz >= 29.f&&pz<=35.f)
 	{
 		px = 0.0f;
 		py = -48.25f;
@@ -511,6 +514,7 @@ void drawtrap() {
 
 void drawStartPoint()
 {
+	
 	//도입길
 	glBindTexture(GL_TEXTURE_2D, texture[5]);
 	glBegin(GL_QUADS);
@@ -891,6 +895,7 @@ void drawStructure()
 	glPopMatrix();
 
 }
+
 void drawMap()
 {
 	//천장
@@ -928,7 +933,7 @@ void SetTextMessage(GLuint index[64])
 		break;
 
 
-	default: sprintf_s(name, "None"); break;
+	default: break;
 	}
 }
 void SelectObjects(GLint x, GLint y) {
@@ -1003,6 +1008,8 @@ void MyMotion(int x, int y) {
 void renderScene(void) {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+	
+
 	drawMap();
 	if (trap == true)
 		drawtrap();
@@ -1018,28 +1025,42 @@ void renderScene(void) {
 
 
 	sprintf(coor, "x : %f z : %f", px, pz);
-	sprintf(name, "Picture");
+	sprintf(warn, "You RUINED the masterpiece!!!");
+	sprintf(name, "FIND <the GIRL> <Woman with sad eyes> <Gentleman with apple face>");
 	sprintf(message, "You DIED");
 	sprintf(diemessage, "Press 'r' to restart");
 	sprintf(clearmessage, "CLEAR!!");
+	sprintf(gohome, "Go back to the Entrance");
 	beginRenderText(g_nWindowWidth, g_nWindowHeight);
 	{
-		
+
 		glColor3f(1.0f, 1.0f, 1.0f);
-		if (die == false && text == true)
+		if (text == true)
 		{
-			renderText(g_nWindowWidth - 0.95, g_nWindowHeight + 0.9, BITMAP_FONT_TYPE_HELVETICA_12, coor);
-			
-			//renderText(g_nWindowWidth - 0.95, g_nWindowHeight + 0.8, BITMAP_FONT_TYPE_HELVETICA_12,name);
-		}
-		if (die == true)
-		{
-			renderText(g_nWindowWidth - 0.08, g_nWindowHeight + 0.05, BITMAP_FONT_TYPE_HELVETICA_18, message);
-			renderText(g_nWindowWidth - 0.15, g_nWindowHeight - 0.05, BITMAP_FONT_TYPE_HELVETICA_18, diemessage);
-		}
-		if (realclear == true)
-		{
-			renderText(g_nWindowWidth - 0.08, g_nWindowHeight + 0.05, BITMAP_FONT_TYPE_HELVETICA_18, clearmessage);
+			if (die == false)
+			{
+				renderText(g_nWindowWidth - 0.95, g_nWindowHeight + 0.9, BITMAP_FONT_TYPE_HELVETICA_12, coor);
+
+			}
+			if (monalisa == true || gentleman == true || girl == true)
+			{
+				renderText(g_nWindowWidth - 0.95, g_nWindowHeight + 0.8, BITMAP_FONT_TYPE_HELVETICA_12, warn);
+				renderText(g_nWindowWidth - 0.95, g_nWindowHeight + 0.7, BITMAP_FONT_TYPE_HELVETICA_12, name);
+			}
+			if (clear == true)
+			{
+				renderText(g_nWindowWidth - 0.95, g_nWindowHeight + 0.6, BITMAP_FONT_TYPE_HELVETICA_12, gohome);
+			}
+			if (die == true)
+			{
+				renderText(g_nWindowWidth - 0.08, g_nWindowHeight + 0.05, BITMAP_FONT_TYPE_HELVETICA_18, message);
+				renderText(g_nWindowWidth - 0.15, g_nWindowHeight - 0.05, BITMAP_FONT_TYPE_HELVETICA_18, diemessage);
+			}
+			if (realclear == true)
+			{
+				renderText(g_nWindowWidth - 0.08, g_nWindowHeight + 0.05, BITMAP_FONT_TYPE_HELVETICA_18, clearmessage);
+			}
+
 		}
 	}
 	endRenderText();
@@ -1143,6 +1164,8 @@ void crash()
 			vec3 dis = mobs[i].p - p;
 			float L = length(dis);
 			//printf("%f %f %f\n", px, mobs[0].p.x, L);
+			if (i == 6 && L <= 2.5f)
+				die = true;
 			if (L <= 2.0f)
 			{
 				die = true;
@@ -1183,9 +1206,6 @@ void inputKey(unsigned char key, int x, int y) {
 		break;
 	case 'r':
 		rst();
-		break;
-	case 'q':
-		trap = true;
 		break;
 	case 'c':
 		clear = true;
@@ -1241,6 +1261,9 @@ void glInit()
 	LoadGLTextures();
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_TEXTURE_2D);
+	
+
+
 	for (int i = 0; i < 7; i++)
 		addMob();
 	if (fuel == 0) {
