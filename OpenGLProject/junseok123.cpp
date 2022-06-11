@@ -1035,33 +1035,32 @@ void renderScene(void) {
 	{
 
 		glColor3f(1.0f, 1.0f, 1.0f);
-		if (text == true)
-		{
-			if (die == false)
-			{
-				renderText(g_nWindowWidth - 0.95, g_nWindowHeight + 0.9, BITMAP_FONT_TYPE_HELVETICA_12, coor);
 
-			}
-			if (monalisa == true || gentleman == true || girl == true)
-			{
-				renderText(g_nWindowWidth - 0.95, g_nWindowHeight + 0.8, BITMAP_FONT_TYPE_HELVETICA_12, warn);
-				renderText(g_nWindowWidth - 0.95, g_nWindowHeight + 0.7, BITMAP_FONT_TYPE_HELVETICA_12, name);
-			}
-			if (clear == true)
-			{
-				renderText(g_nWindowWidth - 0.95, g_nWindowHeight + 0.6, BITMAP_FONT_TYPE_HELVETICA_12, gohome);
-			}
-			if (die == true)
-			{
-				renderText(g_nWindowWidth - 0.08, g_nWindowHeight + 0.05, BITMAP_FONT_TYPE_HELVETICA_18, message);
-				renderText(g_nWindowWidth - 0.15, g_nWindowHeight - 0.05, BITMAP_FONT_TYPE_HELVETICA_18, diemessage);
-			}
-			if (realclear == true)
-			{
-				renderText(g_nWindowWidth - 0.08, g_nWindowHeight + 0.05, BITMAP_FONT_TYPE_HELVETICA_18, clearmessage);
-			}
+		if (die == false && text == true)
+		{
+			renderText(g_nWindowWidth - 0.95, g_nWindowHeight + 0.9, BITMAP_FONT_TYPE_HELVETICA_12, coor);
 
 		}
+		if (monalisa == true || gentleman == true || girl == true)
+		{
+			renderText(g_nWindowWidth - 0.95, g_nWindowHeight + 0.8, BITMAP_FONT_TYPE_HELVETICA_12, warn);
+			renderText(g_nWindowWidth - 0.95, g_nWindowHeight + 0.7, BITMAP_FONT_TYPE_HELVETICA_12, name);
+		}
+		if (clear == true)
+		{
+			renderText(g_nWindowWidth - 0.95, g_nWindowHeight + 0.6, BITMAP_FONT_TYPE_HELVETICA_12, gohome);
+		}
+		if (die == true)
+		{
+			renderText(g_nWindowWidth - 0.08, g_nWindowHeight + 0.05, BITMAP_FONT_TYPE_HELVETICA_18, message);
+			renderText(g_nWindowWidth - 0.15, g_nWindowHeight - 0.05, BITMAP_FONT_TYPE_HELVETICA_18, diemessage);
+		}
+		if (realclear == true)
+		{
+			renderText(g_nWindowWidth - 0.08, g_nWindowHeight + 0.05, BITMAP_FONT_TYPE_HELVETICA_18, clearmessage);
+		}
+
+		
 	}
 	endRenderText();
 
