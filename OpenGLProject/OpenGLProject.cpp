@@ -51,6 +51,8 @@ void DrawCubeTex();
 void drawtrap();
 void renderScene(void);
 void drawPicture(float leftX, float midZ, bool garosero, int pictureNum);
+void texturedCylinder(float radius, int height, int slices);
+void texturedSphere(float radius, int slices);
 
 GLboolean die = false;    //사망 처리
 GLboolean clear = false;  //클리어 처리
@@ -236,9 +238,9 @@ GLuint g_textureID = -1;
 
 const string textureName[30] = { "Data/monalisa.bmp","Data/gentleman.bmp","Data/girlwithearing.bmp","Data/girlwithearing2.bmp","Data/Museum_Front.bmp" ,"Data/brick.bmp" 
 ,"Data/Museum_Left.bmp","Data/Museum_Right.bmp","Data/BlueSky.bmp",  "Data/museum_floor.bmp", "Data/museum_floor_bokdo.bmp", "Data/museum_wall.bmp", "Data/museum_ceiling.bmp" , 
-"Data/Earth.bmp"
+"Data/Earth.bmp","Data/ib.bmp"
 };
-const int TEXTURENUM = 14;
+const int TEXTURENUM = 15;
 
 AUX_RGBImageRec* LoadBMP(const char* Filename) {
 	FILE* File = NULL;
@@ -448,6 +450,14 @@ void drawtrap() {////////////////////////////
 
 void drawStartPoint()
 {
+	glBindTexture(GL_TEXTURE_2D, texture[14]);
+	glBegin(GL_QUADS);
+	glColor3f(1.0f, 1.0f, 1.0f);
+	glTexCoord2f(0, 0); glVertex3f(-10.0f, 48.0f, 15.0f);
+	glTexCoord2f(0, 1); glVertex3f(10.0f, 48.0f, 15.0f);
+	glTexCoord2f(1, 1); glVertex3f(10.0f, 56.0f, 15.0f);
+	glTexCoord2f(1, 0); glVertex3f(-10.0f, 56.0f, 15.0f);
+	glEnd();
 	//도입길
 	glBindTexture(GL_TEXTURE_2D, texture[5]);
 	glBegin(GL_QUADS);
@@ -829,13 +839,6 @@ void drawStructure()
 		glutWireDodecahedron();
 	}
 	glPopMatrix();
-	glPushMatrix();
-	{
-		glTranslatef(15.0f, 5.0f - 50.0f, 35.0f);
-		glRotatef(90, 1, 0, 0);
-		glutSolidCone(2.0f, 5.0f, 32, 4);
-	}
-	glPopMatrix();
 	//2번방
 	glPushMatrix();
 	{
@@ -896,6 +899,7 @@ void drawStructure()
 	glPopMatrix();
 
 }
+
 void drawMap()
 {
 	//천장
