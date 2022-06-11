@@ -288,14 +288,15 @@ void newExplosion(void) {
 	fuel = 1000;
 }
 
-GLuint	texture[30];
+GLuint	texture[50];
 GLuint g_textureID = -1;
 
-const string textureName[30] = { "Data/monalisa.bmp","Data/gentleman.bmp","Data/girlwithearing.bmp","Data/girlwithearing2.bmp","Data/Museum_Front.bmp" ,"Data/brick.bmp" 
+const string textureName[50] = { "Data/monalisa.bmp","Data/gentleman.bmp","Data/girlwithearing.bmp","Data/girlwithearing2.bmp","Data/Museum_Front.bmp" ,"Data/brick.bmp" 
 ,"Data/Museum_Left.bmp","Data/Museum_Right.bmp","Data/BlueSky.bmp",  "Data/museum_floor.bmp", "Data/museum_floor_bokdo.bmp", "Data/museum_wall.bmp", "Data/museum_ceiling.bmp" , 
-"Data/Earth.bmp","Data/ib.bmp","Data/monalisa3.bmp","Data/gentleman2.bmp"
+"Data/Earth.bmp","Data/ib.bmp","Data/monalisa3.bmp","Data/gentleman2.bmp","Data/1.bmp","Data/2.bmp","Data/3.bmp","Data/4.bmp","Data/5.bmp","Data/6.bmp","Data/7.bmp","Data/8.bmp",
+"Data/9.bmp","Data/10.bmp","Data/11.bmp","Data/12.bmp","Data/13.bmp","Data/14.bmp","Data/15.bmp","Data/16.bmp","Data/17.bmp","Data/18.bmp"
 };
-const int TEXTURENUM = 17;
+const int TEXTURENUM = 35;
 
 AUX_RGBImageRec* LoadBMP(const char* Filename) {
 	FILE* File = NULL;
@@ -333,7 +334,7 @@ void changeSize(int w, int h)
 }
 
 void LoadGLTextures() {
-	AUX_RGBImageRec* TextureImage[30];
+	AUX_RGBImageRec* TextureImage[50];
 	memset(TextureImage, 0, sizeof(void*) * 30);
 
 	for (int i = 0; i < TEXTURENUM; i++)
@@ -677,7 +678,7 @@ void texturedSphere(float radius, int slices) {
 void drawPicture(float leftX, float midZ, bool garosero, int pictureNum)
 {
 
-	leftX = leftX - 1.2f;
+	//leftX = leftX - 1.2f;
 	if (garosero == 0)
 	{
 		glBindTexture(GL_TEXTURE_2D, texture[pictureNum]);
@@ -821,6 +822,16 @@ void drawGallary()
 	glPopName();
 	drawPannel(-78.5f, 20.0f - 1.6f, 1);
 	drawPannelGround(-50.0f, 15.0f, 45.0f);
+	//정면
+	drawPicture(-78.5f, 30.0f, 1, 29);
+	drawPicture(-78.5f, 10.0f, 1, 30);
+	//왼쪽
+	drawPicture(-55.f, 39.8f, 0, 31);
+	drawPicture(-65.f, 39.8f, 0, 32);
+	//오른쪽
+	drawPicture(-55.f, 0.2f, 0, 33);
+	drawPicture(-65.f, 0.2f, 0, 34);
+
 	//미술관 땅2 (왼쪽 monalisa)
 	drawFloor(60.0f, 20.0f, 20.0f, 9);
 	drawWall(-20.0f + 60.0f, 0.0f, 1);
@@ -833,6 +844,16 @@ void drawGallary()
 	glPopName();
 	drawPannel(78.5f, 20.0f + 2.8f, 1);
 	drawPannelGround(50.0f, 25.0f, 45.0f);
+	//정면
+	drawPicture(79.5f, 30.0f, 1, 17);
+	drawPicture(79.5f, 10.0f, 1, 18);
+	//왼쪽
+	drawPicture(55.f, 1.0f, 0, 19);
+	drawPicture(65.f, 1.0f, 0, 20);
+	//오른쪽
+	drawPicture(55.f, 39.8f, 0, 21);
+	drawPicture(65.f, 39.8f, 0, 22);
+
 	//미술관 땅3(정면방 girl)
 	drawFloor(0, 80.0f, 20.0f, 9);
 	drawWall(-20.0f, 60.0f, 0);
@@ -844,6 +865,15 @@ void drawGallary()
 	drawPicture(0.0f, 99.5f, 0, 2);
 	glPopName();
 	drawPannel(0.0f - 1.6f, 99.5f, 0);
+	//정면
+	drawPicture(10.0f, 99.5f, 0, 23);
+	drawPicture(-10.0f, 99.5f, 0, 24);
+	//왼쪽벽
+	drawPicture(19.6f, 85.0f,1, 25);
+	drawPicture(19.6f, 75.0f, 1, 26);
+	//오른쪽벽
+	drawPicture(-19.6f, 75.0f, 1, 27);
+	drawPicture(-19.6f, 85.0f, 1, 28);
 	glEnd();
 
 
