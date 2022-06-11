@@ -781,10 +781,10 @@ void drawPannel(float leftX, float midZ, bool garosero, int pictureNum, int need
 			glBindTexture(GL_TEXTURE_2D, texture[pictureNum]);
 			glBegin(GL_QUADS);
 			glColor3f(1.0f, 1.0f, 1.0f);
-			glTexCoord2f(1, 0);  glVertex3f(leftX, -48.0f, midZ);
-			glTexCoord2f(1, 1); glVertex3f(leftX, -47.2f, midZ);
-			glTexCoord2f(0, 1); glVertex3f(leftX, -47.2f, midZ + 1.2f);
-			glTexCoord2f(0, 0); glVertex3f(leftX, -48.0f, midZ + 1.2f);
+			glTexCoord2f(1, 0);  glVertex3f(leftX, -48.0f + yUp, midZ);
+			glTexCoord2f(1, 1); glVertex3f(leftX, -47.2f + yUp, midZ);
+			glTexCoord2f(0, 1); glVertex3f(leftX, -47.2f + yUp, midZ + 1.2f);
+			glTexCoord2f(0, 0); glVertex3f(leftX, -48.0f + yUp, midZ + 1.2f);
 			glEnd();
 		}
 	}
@@ -1150,12 +1150,45 @@ void renderScene(void) {
 		drawtrap();
 	if (realclear == true)
 		rain();
-	if (girl==true)
-		drawPicture(-19.5f, 85.0f, 1, 3);
-	if(monalisa==true)
-		drawPicture(65.0f, 1.1f, 0, 15);
-	if(gentleman==true)
-		drawPicture(-78.4f, 30.0f, 1, 16);
+	if (girl == true)
+	{
+		drawPicture(-19.55f, 85.0f, 1, 3);
+		//정면
+		drawPicture(10.0f, 99.45f, 0, 3);
+		drawPicture(-10.0f, 99.45f, 0, 3);
+		//왼쪽벽
+		drawPicture(19.55f, 85.0f, 1, 3);
+		drawPicture(19.55f, 75.0f, 1, 3);
+		//오른쪽벽
+		drawPicture(-19.55f, 75.0f, 1, 3);
+		drawPicture(0.0f, 99.45f, 0, 3);
+	}
+	if (monalisa == true)
+	{
+		drawPicture(65.0f, 1.05f, 0, 15);
+		//정면
+		drawPicture(79.3f, 30.0f, 1, 15);
+		drawPicture(79.3f, 10.0f, 1, 15);
+		//왼쪽
+		drawPicture(55.f, 1.05f, 0, 15);
+		drawPicture(79.3f, 20.0f, 1, 15);
+		//오른쪽
+		drawPicture(55.f, 39.7f, 0, 15);
+		drawPicture(65.f, 39.7f, 0, 15);
+	}
+	if (gentleman == true)
+	{
+		//정면
+		drawPicture(-78.45f, 20.0f, 1, 16);
+		drawPicture(-78.45f, 10.0f, 1, 16);
+		//왼쪽
+		drawPicture(-55.f, 39.75f, 0, 16);
+		drawPicture(-65.f, 39.75f, 0, 16);
+		//오른쪽
+		drawPicture(-55.f, 0.25f, 0, 16);
+		drawPicture(-65.f, 0.25f, 0, 16);
+		drawPicture(-78.45f, 30.0f, 1, 16);
+	}
 	glPushMatrix();
 	{
 		glTranslatef(0.0f, 1.0f, 10.0f);
