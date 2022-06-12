@@ -296,9 +296,9 @@ const string textureName[50] = { "Data/monalisa.bmp","Data/gentleman.bmp","Data/
 "Data/Earth.bmp","Data/ib.bmp","Data/monalisa3.bmp","Data/gentleman2.bmp","Data/1.bmp","Data/2.bmp","Data/3.bmp","Data/4.bmp","Data/5.bmp","Data/6.bmp","Data/7.bmp","Data/8.bmp",
 "Data/9.bmp","Data/10.bmp","Data/11.bmp","Data/12.bmp","Data/13.bmp","Data/14.bmp","Data/15.bmp","Data/16.bmp","Data/17.bmp","Data/18.bmp" ,"Data/pannel_image_Earth.bmp" ,
 "Data/pannel_image_Gentleman.bmp" ,"Data/pannel_image_Aladin.bmp" ,"Data/pannel_image_SoccerBall.bmp" ,"Data/pannel_image_Monalisa.bmp" ,"Data/pannel_image_Girl.bmp",
-"Data/pannel_stick_image2.bmp", "Data/NoPhotography.bmp"
+"Data/pannel_stick_image2.bmp", "Data/NoPhotography.bmp", "Data/pannel_image_dont_touch.bmp"
 };
-const int TEXTURENUM = 43;
+const int TEXTURENUM = 44;
 
 AUX_RGBImageRec* LoadBMP(const char* Filename) {
 	FILE* File = NULL;
@@ -853,6 +853,7 @@ void drawGallary()
 	drawPannel(-5.6f, 40.0f - 0.5f, 0, 42, 0, 1.0f);
 
 	//drawPannelGround(10.0f, 28.0f, 30.0f);
+	drawPannelGround(0.0f, 10.0f, 0.0f, 43, 0);
 	drawPannelGround(-10.0f, 30.0f, -30.0f, 38,0);
 	//미술관 땅1(오른쪽방 gentleman)
 	drawFloor(-60.0f, 20.0f, 20.0f, 9);
