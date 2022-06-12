@@ -424,7 +424,7 @@ void MyTimer(int value) {
 	{
 
 		//x = 300.0f;
-		pz = 500.0f;
+		pz = -500.0f;
 		//newExplosion();
 
 	}
@@ -1479,7 +1479,7 @@ int main(int argc, char** argv)
 	glutInitDisplayMode(GLUT_DEPTH | GLUT_DOUBLE | GLUT_RGBA);
 	glutInitWindowPosition(200, 200);
 	glutInitWindowSize(900, 700);
-	glutCreateWindow("yunsoo");
+	glutCreateWindow("Project");
 	glInit();
 	glutKeyboardFunc(inputKey);
 
