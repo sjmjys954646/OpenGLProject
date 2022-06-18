@@ -1086,8 +1086,6 @@ void SelectObjects(GLint x, GLint y) {
 	glLoadIdentity();
 	gluPickMatrix(x, viewport[3] - y, 2, 2, viewport);
 
-	//gluPerspective(45.0f, (GLfloat)g_nWindowWidth / (GLfloat)g_nWindowHeight, 0.1f, 100.0f);
-	//gluPerspective(45, ratio, 1, 1000);
 	gluLookAt(px, py, pz, px + lx, py + ly, pz + lz, 0.0f, 1.0f, 0.0f);
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
@@ -1208,9 +1206,7 @@ void renderScene(void) {
 	sprintf(gohome, "Go back to the Entrance");
 	beginRenderText(g_nWindowWidth, g_nWindowHeight);
 	{
-
 		glColor3f(1.0f, 1.0f, 1.0f);
-
 		if (die == false && text == true)
 		{
 			renderText(g_nWindowWidth - 0.95, g_nWindowHeight + 0.9, BITMAP_FONT_TYPE_HELVETICA_12, coor);
@@ -1235,8 +1231,6 @@ void renderScene(void) {
 			glColor3f(1.0f, 0.0f, 0.0f);
 			renderText(g_nWindowWidth - 0.08, g_nWindowHeight + 0.05, BITMAP_FONT_TYPE_HELVETICA_18, clearmessage);
 		}
-
-
 	}
 	endRenderText();
 
@@ -1339,18 +1333,16 @@ void crash()
 			vec3 p = vec3(px, py, pz);
 			vec3 dis = mobs[i].p - p;
 			float L = length(dis);
-			//printf("%f %f %f\n", px, mobs[0].p.x, L);
+
 			if (i == 6 && L <= 2.5f)
 				die = true;
 			if (L <= 2.0f)
 			{
 				die = true;
-				printf("닿았따\n");
+				printf("닿았다\n");
 			}
 		}
 	}
-
-
 }
 void inputKey(unsigned char key, int x, int y) {
 
@@ -1394,22 +1386,6 @@ void inputKey(unsigned char key, int x, int y) {
 		break;
 	case 'k': case'K':
 		start = true;
-		break;
-	/// 아래는 테스트용
-	case 'q':
-		trap = true;
-		break;
-	case 'o':
-		die = true;
-		break;
-	case 'z':
-		girl = true;
-		break;
-	case 'x':
-		monalisa = true;
-		break;
-	case 'c':
-		gentleman = true;
 		break;
 	}
 }
